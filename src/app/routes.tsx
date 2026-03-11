@@ -6,6 +6,7 @@ import {
   DropPage,
   ThankYouPage,
   AboutPage,
+  InstrumentPage,
 } from "./components/pages";
 import { Toaster } from "./components/ui/sonner";
 
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
       { path: "access/:token", Component: MemberAccessPage },
       { path: "drop/:id", Component: DropPage },
       { path: "thank-you", Component: ThankYouPage },
+      { path: "instrument", Component: InstrumentPage },
     ],
   },
 ]);

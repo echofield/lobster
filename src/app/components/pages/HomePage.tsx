@@ -111,6 +111,9 @@ export function HomePage() {
           <Link to="/access" className="text-xs tracking-[0.15em] uppercase opacity-40 hover:opacity-100 transition-opacity">
             Archive
           </Link>
+          <Link to="/instrument" className="text-xs tracking-[0.15em] uppercase opacity-40 hover:opacity-100 transition-opacity">
+            Instrument
+          </Link>
           <Link to="/card" className="text-xs tracking-[0.15em] uppercase opacity-40 hover:opacity-100 transition-opacity">
             Card
           </Link>
