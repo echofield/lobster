@@ -215,32 +215,56 @@ export function HomePage() {
                 <p className="text-xs opacity-40">{previewTracks[currentTrack].drop}</p>
               </motion.div>
 
-              {/* Abstract signal visualization */}
+              {/* Abstract ARCHÉ-inspired signal visualization */}
               {isPlaying && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="mt-5 flex items-center justify-center gap-1"
+                  className="mt-5 w-32 h-8 relative"
                 >
-                  {[...Array(7)].map((_, i) => (
-                    <motion.div
-                      key={i}
+                  <svg viewBox="0 0 120 30" className="w-full h-full">
+                    {/* Oscillating sine wave */}
+                    <motion.path
+                      d="M 0 15 Q 15 5, 30 15 T 60 15 T 90 15 T 120 15"
+                      fill="none"
+                      stroke="#8B5CF6"
+                      strokeWidth="0.8"
+                      strokeOpacity="0.6"
                       animate={{
-                        scaleY: [1, 1.5 + Math.random(), 1],
-                        opacity: [0.4, 0.8, 0.4]
+                        d: [
+                          "M 0 15 Q 15 5, 30 15 T 60 15 T 90 15 T 120 15",
+                          "M 0 15 Q 15 25, 30 15 T 60 15 T 90 15 T 120 15",
+                          "M 0 15 Q 15 5, 30 15 T 60 15 T 90 15 T 120 15"
+                        ]
                       }}
-                      transition={{
-                        duration: 0.8 + Math.random() * 0.4,
-                        repeat: Infinity,
-                        delay: i * 0.1,
-                        ease: 'easeInOut'
-                      }}
-                      className="w-px h-4"
-                      style={{
-                        background: 'linear-gradient(180deg, #8B5CF6 0%, #C4B5FD 100%)'
-                      }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                     />
-                  ))}
+                    {/* Secondary wave */}
+                    <motion.path
+                      d="M 0 15 Q 20 20, 40 15 T 80 15 T 120 15"
+                      fill="none"
+                      stroke="#A78BFA"
+                      strokeWidth="0.5"
+                      strokeOpacity="0.3"
+                      animate={{
+                        d: [
+                          "M 0 15 Q 20 20, 40 15 T 80 15 T 120 15",
+                          "M 0 15 Q 20 10, 40 15 T 80 15 T 120 15",
+                          "M 0 15 Q 20 20, 40 15 T 80 15 T 120 15"
+                        ]
+                      }}
+                      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+                    />
+                    {/* Center marker */}
+                    <motion.circle
+                      cx="60"
+                      cy="15"
+                      r="2"
+                      fill="#8B5CF6"
+                      animate={{ opacity: [0.4, 1, 0.4], r: [2, 3, 2] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    />
+                  </svg>
                 </motion.div>
               )}
             </div>
