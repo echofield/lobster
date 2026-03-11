@@ -32,6 +32,24 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] relative overflow-hidden flex flex-col">
+      {/* Soft ambient glow backgrounds */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div
+          className="absolute top-1/4 left-1/4 w-[60vw] h-[60vw] rounded-full opacity-30 blur-[120px]"
+          style={{
+            background: 'radial-gradient(circle, rgba(199, 146, 234, 0.4) 0%, rgba(255, 182, 193, 0.3) 40%, transparent 70%)',
+            transform: `translate(${(mousePos.x - 0.5) * 30}px, ${(mousePos.y - 0.5) * 30}px)`
+          }}
+        />
+        <div
+          className="absolute bottom-1/4 right-1/4 w-[50vw] h-[50vw] rounded-full opacity-25 blur-[100px]"
+          style={{
+            background: 'radial-gradient(circle, rgba(255, 200, 150, 0.5) 0%, rgba(255, 160, 180, 0.3) 50%, transparent 70%)',
+            transform: `translate(${(mousePos.x - 0.5) * -20}px, ${(mousePos.y - 0.5) * -20}px)`
+          }}
+        />
+      </div>
+
       {/* Nav */}
       <motion.nav
         initial={{ opacity: 0 }}
@@ -44,7 +62,7 @@ export function HomePage() {
           <span className="text-xs tracking-[0.2em] uppercase opacity-60">Lobster Sound</span>
         </Link>
         <div className="flex items-center gap-6">
-          <Link to="/archive" className="text-xs tracking-[0.15em] uppercase opacity-40 hover:opacity-100 transition-opacity">
+          <Link to="/access" className="text-xs tracking-[0.15em] uppercase opacity-40 hover:opacity-100 transition-opacity">
             Archive
           </Link>
           <Link to="/card" className="text-xs tracking-[0.15em] uppercase opacity-40 hover:opacity-100 transition-opacity">
@@ -62,16 +80,17 @@ export function HomePage() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[70vmin] h-[70vmin] rounded-full border border-[#1A1A1A]/20 relative"
+            className="w-[70vmin] h-[70vmin] rounded-full border border-[#1A1A1A]/10 relative"
             style={{
-              transform: `translate(${(mousePos.x - 0.5) * 10}px, ${(mousePos.y - 0.5) * 10}px)`
+              transform: `translate(${(mousePos.x - 0.5) * 10}px, ${(mousePos.y - 0.5) * 10}px)`,
+              boxShadow: '0 0 60px rgba(199, 146, 234, 0.15), 0 0 120px rgba(255, 182, 193, 0.1)'
             }}
           >
-            {/* Inner Gradient */}
+            {/* Inner Candy Gradient */}
             <div
               className="absolute inset-0 rounded-full"
               style={{
-                background: `radial-gradient(circle at ${50 + (mousePos.x - 0.5) * 20}% ${50 + (mousePos.y - 0.5) * 20}%, rgba(163, 135, 103, 0.1) 0%, transparent 50%)`
+                background: `radial-gradient(circle at ${50 + (mousePos.x - 0.5) * 20}% ${50 + (mousePos.y - 0.5) * 20}%, rgba(199, 146, 234, 0.15) 0%, rgba(255, 182, 193, 0.1) 30%, transparent 60%)`
               }}
             />
 
@@ -83,17 +102,25 @@ export function HomePage() {
 
             {/* CENTER PLAYER */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-              {/* Play Button */}
+              {/* Play Button with glow */}
               <motion.button
                 onClick={() => setIsPlaying(!isPlaying)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-24 h-24 rounded-full border-2 border-[#1A1A1A]/30 flex items-center justify-center hover:border-[#A38767] hover:bg-[#A38767]/10 transition-all duration-300 mx-auto"
+                className="w-24 h-24 rounded-full border-2 border-[#1A1A1A]/20 flex items-center justify-center transition-all duration-300 mx-auto relative"
+                style={{
+                  background: isPlaying
+                    ? 'linear-gradient(135deg, rgba(199, 146, 234, 0.15) 0%, rgba(255, 182, 193, 0.15) 100%)'
+                    : 'transparent',
+                  boxShadow: isPlaying
+                    ? '0 0 40px rgba(199, 146, 234, 0.3), 0 0 80px rgba(255, 182, 193, 0.2)'
+                    : 'none'
+                }}
               >
                 {isPlaying ? (
-                  <Pause className="w-8 h-8 text-[#A38767]" />
+                  <Pause className="w-8 h-8" style={{ color: '#C792EA' }} />
                 ) : (
-                  <Play className="w-8 h-8 text-[#1A1A1A]/60 ml-1" />
+                  <Play className="w-8 h-8 text-[#1A1A1A]/50 ml-1" />
                 )}
               </motion.button>
 
@@ -108,7 +135,7 @@ export function HomePage() {
                 <p className="text-xs opacity-40">{previewTracks[currentTrack].drop}</p>
               </motion.div>
 
-              {/* Mini Waveform */}
+              {/* Mini Waveform with candy gradient */}
               {isPlaying && (
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -120,8 +147,11 @@ export function HomePage() {
                       key={i}
                       animate={{ height: [8, 20 + Math.random() * 12, 8] }}
                       transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.05 }}
-                      className="w-0.5 bg-[#A38767] rounded-full"
-                      style={{ height: 8 }}
+                      className="w-0.5 rounded-full"
+                      style={{
+                        height: 8,
+                        background: `linear-gradient(180deg, #C792EA ${i * 5}%, #FFB6C1 100%)`
+                      }}
                     />
                   ))}
                 </motion.div>
@@ -161,17 +191,35 @@ export function HomePage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 1.5, duration: 1 }}
-            className="absolute left-[-120px] top-1/2 -translate-y-1/2 space-y-2"
+            className="absolute left-[-120px] top-1/2 -translate-y-1/2 space-y-3"
           >
             {previewTracks.map((track, i) => (
               <button
                 key={i}
                 onClick={() => { setCurrentTrack(i); setIsPlaying(true); }}
-                className={`block text-left transition-all duration-300 ${
+                className={`block text-left transition-all duration-300 relative ${
                   currentTrack === i ? 'opacity-100' : 'opacity-30 hover:opacity-60'
                 }`}
               >
-                <span className="text-[10px] tracking-wider">{String(i + 1).padStart(2, '0')}</span>
+                <span
+                  className="text-[10px] tracking-wider"
+                  style={{
+                    color: currentTrack === i ? '#C792EA' : undefined,
+                    textShadow: currentTrack === i ? '0 0 10px rgba(199, 146, 234, 0.5)' : undefined
+                  }}
+                >
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                {currentTrack === i && (
+                  <motion.div
+                    layoutId="trackIndicator"
+                    className="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full"
+                    style={{
+                      background: 'linear-gradient(135deg, #C792EA 0%, #FFB6C1 100%)',
+                      boxShadow: '0 0 8px rgba(199, 146, 234, 0.6)'
+                    }}
+                  />
+                )}
               </button>
             ))}
           </motion.div>
@@ -186,9 +234,18 @@ export function HomePage() {
         >
           <Link
             to="/card"
-            className="inline-block px-8 py-4 border border-[#1A1A1A]/30 text-xs tracking-[0.2em] uppercase hover:bg-[#1A1A1A] hover:text-[#FAF8F2] transition-all duration-500"
+            className="group inline-block px-8 py-4 border border-[#1A1A1A]/20 text-xs tracking-[0.2em] uppercase transition-all duration-500 relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(199, 146, 234, 0.05) 0%, rgba(255, 182, 193, 0.05) 100%)'
+            }}
           >
-            Get Your Card
+            <span className="relative z-10 group-hover:text-white transition-colors duration-300">Get Your Card</span>
+            <div
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              style={{
+                background: 'linear-gradient(135deg, #C792EA 0%, #FFB6C1 100%)'
+              }}
+            />
           </Link>
         </motion.div>
 
@@ -227,11 +284,24 @@ export function HomePage() {
           <button
             key={tab}
             onClick={() => setActiveTab(i)}
-            className={`text-[10px] tracking-[0.15em] uppercase transition-opacity duration-300 ${
+            className={`text-[10px] tracking-[0.15em] uppercase transition-all duration-300 relative ${
               activeTab === i ? 'opacity-100' : 'opacity-30 hover:opacity-60'
             }`}
+            style={{
+              color: activeTab === i ? '#C792EA' : undefined,
+              textShadow: activeTab === i ? '0 0 15px rgba(199, 146, 234, 0.4)' : undefined
+            }}
           >
             {tab}
+            {activeTab === i && (
+              <motion.div
+                layoutId="tabIndicator"
+                className="absolute -bottom-2 left-0 right-0 h-px"
+                style={{
+                  background: 'linear-gradient(90deg, transparent 0%, #C792EA 50%, transparent 100%)'
+                }}
+              />
+            )}
           </button>
         ))}
       </motion.div>
