@@ -18,14 +18,14 @@ export function MemberAccessPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#FAF8F2] relative overflow-hidden">
+    <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] relative overflow-hidden">
       {/* Initialization Overlay */}
       {!initialized && (
         <motion.div
           initial={{ opacity: 1 }}
           animate={{ opacity: 0 }}
           transition={{ delay: 1, duration: 0.5 }}
-          className="fixed inset-0 z-50 bg-[#0A0A0A] flex items-center justify-center"
+          className="fixed inset-0 z-50 bg-[#FAF8F2] flex items-center justify-center"
         >
           <div className="text-center">
             <motion.div
@@ -37,7 +37,7 @@ export function MemberAccessPage() {
             <motion.p
               animate={{ opacity: [0.3, 1, 0.3] }}
               transition={{ duration: 1.5, repeat: Infinity }}
-              className="text-xs tracking-[0.2em] uppercase text-[#FAF8F2]/40"
+              className="text-xs tracking-[0.2em] uppercase text-[#1A1A1A]/40"
             >
               Reading Card...
             </motion.p>
@@ -61,8 +61,8 @@ export function MemberAccessPage() {
         className="fixed top-0 left-0 right-0 z-40 px-8 py-6 flex justify-between items-center"
       >
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-4 h-4 border border-[#FAF8F2]/30 rotate-45" />
-          <span className="text-xs tracking-[0.2em] uppercase opacity-60">Lobster</span>
+          <div className="w-4 h-4 border border-[#1A1A1A]/30 rotate-45" />
+          <span className="text-xs tracking-[0.2em] uppercase opacity-60">Lobster Sound</span>
         </Link>
         <span className="text-xs tracking-[0.15em] uppercase text-[#A38767]">
           Member Access
@@ -92,7 +92,7 @@ export function MemberAccessPage() {
           </motion.div>
 
           <h1 className="text-4xl md:text-5xl font-serif mb-4">Welcome back</h1>
-          <p className="text-[#FAF8F2]/40">
+          <p className="text-[#1A1A1A]/40">
             {card.name} <span className="mx-3 opacity-30">·</span> {card.edition}
           </p>
         </motion.div>
@@ -104,10 +104,10 @@ export function MemberAccessPage() {
           transition={{ delay: 1, duration: 0.8 }}
         >
           <div className="flex justify-between items-center mb-8">
-            <span className="text-[10px] tracking-[0.2em] uppercase text-[#FAF8F2]/40">
+            <span className="text-[10px] tracking-[0.2em] uppercase text-[#1A1A1A]/40">
               Your Archive
             </span>
-            <span className="text-xs text-[#FAF8F2]/30">
+            <span className="text-xs text-[#1A1A1A]/30">
               {drops.length} drops available
             </span>
           </div>
@@ -125,19 +125,19 @@ export function MemberAccessPage() {
                   to={`/drop/${drop.id}`}
                   onMouseEnter={() => setHoveredDrop(drop.id)}
                   onMouseLeave={() => setHoveredDrop(null)}
-                  className={`group block border border-[#FAF8F2]/10 transition-all duration-500 ${
+                  className={`group block border border-[#1A1A1A]/10 transition-all duration-500 ${
                     hoveredDrop === drop.id ? 'border-[#A38767]/40 bg-[#A38767]/5' : ''
                   }`}
                 >
                   <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-6">
                     {/* Visual */}
-                    <div className="w-20 h-20 border border-[#FAF8F2]/10 flex items-center justify-center shrink-0 relative overflow-hidden">
+                    <div className="w-20 h-20 border border-[#1A1A1A]/10 flex items-center justify-center shrink-0 relative overflow-hidden">
                       {/* Waveform preview */}
                       <svg viewBox="0 0 60 40" className="w-full h-full opacity-30">
                         <path
                           d="M 0 20 Q 15 5, 30 20 T 60 20"
                           fill="none"
-                          stroke={hoveredDrop === drop.id ? '#A38767' : '#FAF8F2'}
+                          stroke={hoveredDrop === drop.id ? '#A38767' : '#1A1A1A'}
                           strokeWidth="1"
                         />
                       </svg>
@@ -157,23 +157,23 @@ export function MemberAccessPage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-[#FAF8F2]/40">{drop.artist}</p>
-                      <p className="text-xs text-[#FAF8F2]/30 line-clamp-1 md:line-clamp-none">
+                      <p className="text-sm text-[#1A1A1A]/40">{drop.artist}</p>
+                      <p className="text-xs text-[#1A1A1A]/30 line-clamp-1 md:line-clamp-none">
                         {drop.description}
                       </p>
                     </div>
 
                     {/* Meta */}
                     <div className="flex md:flex-col items-center md:items-end gap-4 md:gap-1 shrink-0">
-                      <span className="text-xs text-[#FAF8F2]/30">{drop.trackCount} tracks</span>
-                      <span className="text-xs text-[#FAF8F2]/30">{drop.duration}</span>
+                      <span className="text-xs text-[#1A1A1A]/30">{drop.trackCount} tracks</span>
+                      <span className="text-xs text-[#1A1A1A]/30">{drop.duration}</span>
                     </div>
 
                     {/* Arrow */}
-                    <div className="hidden md:flex w-10 h-10 border border-[#FAF8F2]/10 items-center justify-center shrink-0 group-hover:border-[#A38767]/40 transition-colors">
+                    <div className="hidden md:flex w-10 h-10 border border-[#1A1A1A]/10 items-center justify-center shrink-0 group-hover:border-[#A38767]/40 transition-colors">
                       <svg
                         className={`w-4 h-4 transition-colors ${
-                          hoveredDrop === drop.id ? 'text-[#A38767]' : 'text-[#FAF8F2]/30'
+                          hoveredDrop === drop.id ? 'text-[#A38767]' : 'text-[#1A1A1A]/30'
                         }`}
                         fill="none"
                         viewBox="0 0 24 24"
@@ -194,14 +194,14 @@ export function MemberAccessPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: initialized ? 1 : 0 }}
           transition={{ delay: 2, duration: 0.8 }}
-          className="mt-20 pt-12 border-t border-[#FAF8F2]/10"
+          className="mt-20 pt-12 border-t border-[#1A1A1A]/10"
         >
           <div className="text-center">
-            <span className="text-[10px] tracking-[0.2em] uppercase text-[#FAF8F2]/30">
+            <span className="text-[10px] tracking-[0.2em] uppercase text-[#1A1A1A]/30">
               Coming Soon
             </span>
             <h2 className="mt-3 text-xl font-serif">Next drop: April 2024</h2>
-            <p className="mt-2 text-xs text-[#FAF8F2]/30 max-w-md mx-auto">
+            <p className="mt-2 text-xs text-[#1A1A1A]/30 max-w-md mx-auto">
               Your card will unlock new content as it becomes available. No action needed.
             </p>
           </div>
@@ -212,11 +212,11 @@ export function MemberAccessPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: initialized ? 1 : 0 }}
           transition={{ delay: 2.2, duration: 0.6 }}
-          className="mt-16 p-6 border border-[#FAF8F2]/10"
+          className="mt-16 p-6 border border-[#1A1A1A]/10"
         >
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/30">
+              <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/30">
                 Card Status
               </span>
               <div className="flex items-center gap-2 mt-2">
@@ -229,7 +229,7 @@ export function MemberAccessPage() {
               </div>
             </div>
             <div className="text-right">
-              <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/30">
+              <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/30">
                 Member Since
               </span>
               <p className="text-sm mt-2">March 2024</p>
@@ -240,7 +240,7 @@ export function MemberAccessPage() {
 
       {/* Bottom Diamond */}
       <div className="fixed bottom-8 right-8">
-        <div className="w-3 h-3 border border-[#FAF8F2]/20 rotate-45" />
+        <div className="w-3 h-3 border border-[#1A1A1A]/20 rotate-45" />
       </div>
     </div>
   );

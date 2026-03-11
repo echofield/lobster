@@ -88,25 +88,25 @@ export function AudioPlayer({
   };
 
   return (
-    <div className="bg-[#0A0A0A] border border-[#FAF8F2]/10 p-6">
+    <div className="bg-[#FAF8F2] border border-[#1A1A1A]/10 p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           {/* Play Button */}
           <button
             onClick={togglePlay}
-            className="w-12 h-12 rounded-full border border-[#FAF8F2]/30 flex items-center justify-center hover:border-[#A38767] hover:bg-[#A38767]/10 transition-all duration-300"
+            className="w-12 h-12 rounded-full border border-[#1A1A1A]/30 flex items-center justify-center hover:border-[#A38767] hover:bg-[#A38767]/10 transition-all duration-300"
           >
             {playing ? (
               <Pause className="w-4 h-4 text-[#A38767]" />
             ) : (
-              <Play className="w-4 h-4 text-[#FAF8F2]/80 ml-0.5" />
+              <Play className="w-4 h-4 text-[#1A1A1A]/80 ml-0.5" />
             )}
           </button>
 
           <div>
-            <div className="text-sm text-[#FAF8F2]">{title}</div>
-            <div className="text-xs text-[#FAF8F2]/40">{duration}</div>
+            <div className="text-sm text-[#1A1A1A]">{title}</div>
+            <div className="text-xs text-[#1A1A1A]/40">{duration}</div>
           </div>
         </div>
 
@@ -119,7 +119,7 @@ export function AudioPlayer({
               className="w-2 h-2 rounded-full bg-[#A38767]"
             />
           )}
-          <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">
+          <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/40">
             {playing ? 'PLAYING' : 'READY'}
           </span>
         </div>
@@ -135,7 +135,7 @@ export function AudioPlayer({
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
-              className="absolute left-0 right-0 h-px bg-[#FAF8F2]/30"
+              className="absolute left-0 right-0 h-px bg-[#1A1A1A]/30"
               style={{ top: `${(i + 1) * 20}%` }}
             />
           ))}
@@ -160,7 +160,7 @@ export function AudioPlayer({
                   repeatType: 'reverse'
                 }}
                 className={`w-1 rounded-full transition-colors duration-150 ${
-                  isPlayed ? 'bg-[#A38767]' : 'bg-[#FAF8F2]/20 group-hover:bg-[#FAF8F2]/30'
+                  isPlayed ? 'bg-[#A38767]' : 'bg-[#1A1A1A]/20 group-hover:bg-[#1A1A1A]/30'
                 }`}
                 style={{
                   height: `${value * 80}%`,
@@ -178,7 +178,7 @@ export function AudioPlayer({
         />
 
         {/* Time Labels */}
-        <div className="absolute -bottom-6 left-0 right-0 flex justify-between text-[10px] text-[#FAF8F2]/30">
+        <div className="absolute -bottom-6 left-0 right-0 flex justify-between text-[10px] text-[#1A1A1A]/30">
           <span>0:00</span>
           <span>{duration}</span>
         </div>
@@ -210,8 +210,8 @@ export function MiniPlayer({
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={onToggle}
-      className={`group flex items-center gap-4 p-4 cursor-pointer transition-all duration-300 border-b border-[#FAF8F2]/5 ${
-        isPlaying ? 'bg-[#A38767]/10' : 'hover:bg-[#FAF8F2]/5'
+      className={`group flex items-center gap-4 p-4 cursor-pointer transition-all duration-300 border-b border-[#1A1A1A]/5 ${
+        isPlaying ? 'bg-[#A38767]/10' : 'hover:bg-[#1A1A1A]/5'
       }`}
     >
       {/* Index / Play */}
@@ -224,30 +224,30 @@ export function MiniPlayer({
           />
         ) : (
           <>
-            <span className="text-sm text-[#FAF8F2]/30 group-hover:hidden">
+            <span className="text-sm text-[#1A1A1A]/30 group-hover:hidden">
               {String(index + 1).padStart(2, '0')}
             </span>
-            <Play className="w-3 h-3 text-[#FAF8F2]/60 hidden group-hover:block" />
+            <Play className="w-3 h-3 text-[#1A1A1A]/60 hidden group-hover:block" />
           </>
         )}
       </div>
 
       {/* Title */}
       <div className="flex-1">
-        <span className={`text-sm ${isPlaying ? 'text-[#A38767]' : 'text-[#FAF8F2]/80'}`}>
+        <span className={`text-sm ${isPlaying ? 'text-[#A38767]' : 'text-[#1A1A1A]/80'}`}>
           {title}
         </span>
       </div>
 
       {/* Duration */}
-      <span className="text-xs text-[#FAF8F2]/30">{duration}</span>
+      <span className="text-xs text-[#1A1A1A]/30">{duration}</span>
 
       {/* Mini waveform preview */}
       <div className="hidden md:flex items-center gap-px w-16 h-4">
         {[...Array(16)].map((_, i) => (
           <div
             key={i}
-            className={`w-0.5 rounded-full ${isPlaying ? 'bg-[#A38767]/60' : 'bg-[#FAF8F2]/10'}`}
+            className={`w-0.5 rounded-full ${isPlaying ? 'bg-[#A38767]/60' : 'bg-[#1A1A1A]/10'}`}
             style={{ height: `${Math.random() * 100}%`, minHeight: 2 }}
           />
         ))}

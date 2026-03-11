@@ -6,7 +6,7 @@ export function AboutPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#FAF8F2] relative">
+    <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] relative">
       {/* Nav */}
       <motion.nav
         initial={{ opacity: 0 }}
@@ -22,8 +22,8 @@ export function AboutPage() {
           Return
         </button>
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-4 h-4 border border-[#FAF8F2]/30 rotate-45" />
-          <span className="text-xs tracking-[0.2em] uppercase opacity-60">Lobster</span>
+          <div className="w-4 h-4 border border-[#1A1A1A]/30 rotate-45" />
+          <span className="text-xs tracking-[0.2em] uppercase opacity-60">Lobster Sound</span>
         </Link>
       </motion.nav>
 
@@ -37,8 +37,8 @@ export function AboutPage() {
         >
           {/* Header */}
           <div className="text-center space-y-4">
-            <span className="text-[10px] tracking-[0.2em] uppercase text-[#FAF8F2]/40">About</span>
-            <h1 className="text-4xl md:text-5xl font-serif">Lobster Studio</h1>
+            <span className="text-[10px] tracking-[0.2em] uppercase text-[#1A1A1A]/40">About</span>
+            <h1 className="text-4xl md:text-5xl font-serif">Lobster Sound</h1>
           </div>
 
           {/* Story */}
@@ -50,7 +50,7 @@ export function AboutPage() {
               className="space-y-4"
             >
               <h2 className="text-2xl font-serif">A private sonic archive</h2>
-              <p className="text-[#FAF8F2]/50 leading-relaxed">
+              <p className="text-[#1A1A1A]/50 leading-relaxed">
                 Lobster is not a marketplace. It is an archive.
                 A carefully curated collection of sound, delivered through a single point of access: the Member Card.
               </p>
@@ -63,7 +63,7 @@ export function AboutPage() {
               className="space-y-4"
             >
               <h3 className="text-xl font-serif">The Card</h3>
-              <p className="text-[#FAF8F2]/50 leading-relaxed">
+              <p className="text-[#1A1A1A]/50 leading-relaxed">
                 Each Lobster Member Card is NFC-enabled. One tap opens your personal archive.
                 No apps. No passwords. Just touch and access.
               </p>
@@ -76,9 +76,9 @@ export function AboutPage() {
               className="space-y-4"
             >
               <h3 className="text-xl font-serif">The Archive</h3>
-              <p className="text-[#FAF8F2]/50 leading-relaxed">
+              <p className="text-[#1A1A1A]/50 leading-relaxed">
                 Inside, you'll find sample packs, textures, and sonic experiments.
-                All curated by Lobster Studio. All exclusive to members.
+                All curated by Lobster Sound. All exclusive to members.
                 New drops arrive regularly. Your card unlocks everything.
               </p>
             </motion.div>
@@ -90,7 +90,7 @@ export function AboutPage() {
               className="space-y-4"
             >
               <h3 className="text-xl font-serif">The Philosophy</h3>
-              <p className="text-[#FAF8F2]/50 leading-relaxed">
+              <p className="text-[#1A1A1A]/50 leading-relaxed">
                 We believe in constraint. In quality over quantity.
                 In physical objects that mean something.
                 The card is not just access. It's membership.
@@ -104,7 +104,7 @@ export function AboutPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.1, duration: 0.8 }}
-            className="py-12 border-y border-[#FAF8F2]/10"
+            className="py-12 border-y border-[#1A1A1A]/10"
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
@@ -116,7 +116,7 @@ export function AboutPage() {
                   <span className="text-[10px] tracking-[0.15em] uppercase text-[#A38767]">
                     {item.title}
                   </span>
-                  <p className="text-sm text-[#FAF8F2]/40">{item.desc}</p>
+                  <p className="text-sm text-[#1A1A1A]/40">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -129,12 +129,12 @@ export function AboutPage() {
             transition={{ delay: 1.3, duration: 0.8 }}
             className="text-center space-y-4"
           >
-            <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">Contact</span>
-            <p className="text-[#FAF8F2]/50">
+            <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/40">Contact</span>
+            <p className="text-[#1A1A1A]/50">
               Questions? Reach us at{' '}
               <a
                 href="mailto:hello@lobster.studio"
-                className="text-[#FAF8F2] hover:text-[#A38767] transition-colors underline underline-offset-4"
+                className="text-[#1A1A1A] hover:text-[#A38767] transition-colors underline underline-offset-4"
               >
                 hello@lobster.studio
               </a>
@@ -145,7 +145,7 @@ export function AboutPage() {
 
       {/* Bottom Diamond */}
       <div className="fixed bottom-8 right-8">
-        <div className="w-3 h-3 border border-[#FAF8F2]/20 rotate-45" />
+        <div className="w-3 h-3 border border-[#1A1A1A]/20 rotate-45" />
       </div>
     </div>
   );

@@ -10,7 +10,7 @@ export function CardPage() {
   const [hoveredDrop, setHoveredDrop] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#FAF8F2] relative overflow-hidden">
+    <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] relative overflow-hidden">
       {/* Nav */}
       <motion.nav
         initial={{ opacity: 0 }}
@@ -26,8 +26,8 @@ export function CardPage() {
           Return
         </button>
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-4 h-4 border border-[#FAF8F2]/30 rotate-45" />
-          <span className="text-xs tracking-[0.2em] uppercase opacity-60">Lobster</span>
+          <div className="w-4 h-4 border border-[#1A1A1A]/30 rotate-45" />
+          <span className="text-xs tracking-[0.2em] uppercase opacity-60">Lobster Sound</span>
         </Link>
       </motion.nav>
 
@@ -43,17 +43,17 @@ export function CardPage() {
             className="relative"
           >
             {/* Diagrammatic Frame */}
-            <div className="relative aspect-[3/4] border border-[#FAF8F2]/10 p-8">
+            <div className="relative aspect-[3/4] border border-[#1A1A1A]/10 p-8">
               {/* Corner Markers */}
-              <div className="absolute top-4 left-4 w-4 h-4 border-l border-t border-[#FAF8F2]/20" />
-              <div className="absolute top-4 right-4 w-4 h-4 border-r border-t border-[#FAF8F2]/20" />
-              <div className="absolute bottom-4 left-4 w-4 h-4 border-l border-b border-[#FAF8F2]/20" />
-              <div className="absolute bottom-4 right-4 w-4 h-4 border-r border-b border-[#FAF8F2]/20" />
+              <div className="absolute top-4 left-4 w-4 h-4 border-l border-t border-[#1A1A1A]/20" />
+              <div className="absolute top-4 right-4 w-4 h-4 border-r border-t border-[#1A1A1A]/20" />
+              <div className="absolute bottom-4 left-4 w-4 h-4 border-l border-b border-[#1A1A1A]/20" />
+              <div className="absolute bottom-4 right-4 w-4 h-4 border-r border-b border-[#1A1A1A]/20" />
 
               {/* Grid Lines */}
-              <div className="absolute inset-12 border border-[#FAF8F2]/5" />
-              <div className="absolute top-1/2 left-12 right-12 h-px bg-[#FAF8F2]/5" />
-              <div className="absolute left-1/2 top-12 bottom-12 w-px bg-[#FAF8F2]/5" />
+              <div className="absolute inset-12 border border-[#1A1A1A]/5" />
+              <div className="absolute top-1/2 left-12 right-12 h-px bg-[#1A1A1A]/5" />
+              <div className="absolute left-1/2 top-12 bottom-12 w-px bg-[#1A1A1A]/5" />
 
               {/* The Card */}
               <motion.div
@@ -95,25 +95,25 @@ export function CardPage() {
               </motion.div>
 
               {/* Measurement Labels */}
-              <div className="absolute -right-8 top-1/2 -translate-y-1/2 text-[10px] tracking-[0.1em] text-[#FAF8F2]/20 rotate-90 whitespace-nowrap">
+              <div className="absolute -right-8 top-1/2 -translate-y-1/2 text-[10px] tracking-[0.1em] text-[#1A1A1A]/20 rotate-90 whitespace-nowrap">
                 NFC-ENABLED · CR80
               </div>
 
               {/* Scale at bottom */}
               <div className="absolute bottom-2 left-12 right-12 flex items-center gap-1">
                 {[...Array(20)].map((_, i) => (
-                  <div key={i} className={`flex-1 h-px ${i < 15 ? 'bg-[#A38767]/40' : 'bg-[#FAF8F2]/10'}`} />
+                  <div key={i} className={`flex-1 h-px ${i < 15 ? 'bg-[#A38767]/40' : 'bg-[#1A1A1A]/10'}`} />
                 ))}
               </div>
             </div>
 
             {/* Edition Counter */}
             <div className="mt-8 flex justify-between items-center">
-              <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">
+              <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/40">
                 LIMITED EDITION
               </span>
               <div className="font-serif text-2xl">
-                {card.remaining}<span className="text-[#FAF8F2]/30">/{card.totalSupply}</span>
+                {card.remaining}<span className="text-[#1A1A1A]/30">/{card.totalSupply}</span>
               </div>
             </div>
           </motion.div>
@@ -131,25 +131,25 @@ export function CardPage() {
                 {card.edition}
               </span>
               <h1 className="mt-3 text-4xl md:text-5xl font-serif">{card.name}</h1>
-              <p className="mt-4 text-[#FAF8F2]/50 leading-relaxed">
+              <p className="mt-4 text-[#1A1A1A]/50 leading-relaxed">
                 {card.description}
               </p>
             </div>
 
             {/* Price */}
-            <div className="py-8 border-y border-[#FAF8F2]/10">
+            <div className="py-8 border-y border-[#1A1A1A]/10">
               <div className="flex items-baseline gap-3">
                 <span className="font-serif text-4xl">{card.price}</span>
-                <span className="text-[#FAF8F2]/40">{card.currency}</span>
+                <span className="text-[#1A1A1A]/40">{card.currency}</span>
               </div>
-              <p className="mt-2 text-xs text-[#FAF8F2]/30">
+              <p className="mt-2 text-xs text-[#1A1A1A]/30">
                 One-time purchase. Lifetime access.
               </p>
             </div>
 
             {/* Features */}
             <div className="space-y-6">
-              <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">
+              <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/40">
                 What You Receive
               </span>
               <div className="space-y-4">
@@ -162,7 +162,7 @@ export function CardPage() {
                     className="flex items-center gap-4"
                   >
                     <div className="w-1.5 h-1.5 rounded-full bg-[#A38767]" />
-                    <span className="text-sm text-[#FAF8F2]/80">{feature}</span>
+                    <span className="text-sm text-[#1A1A1A]/80">{feature}</span>
                   </motion.div>
                 ))}
               </div>
@@ -170,7 +170,7 @@ export function CardPage() {
 
             {/* Unlocks */}
             <div className="space-y-6">
-              <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">
+              <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/40">
                 Card Unlocks
               </span>
               <div className="space-y-4">
@@ -182,8 +182,8 @@ export function CardPage() {
                     transition={{ delay: 1 + i * 0.1 }}
                     className="flex items-center gap-4"
                   >
-                    <div className="w-1.5 h-1.5 bg-[#FAF8F2]/40" />
-                    <span className="text-sm text-[#FAF8F2]/60">{unlock}</span>
+                    <div className="w-1.5 h-1.5 bg-[#1A1A1A]/40" />
+                    <span className="text-sm text-[#1A1A1A]/60">{unlock}</span>
                   </motion.div>
                 ))}
               </div>
@@ -198,11 +198,11 @@ export function CardPage() {
             >
               <Link
                 to="/thank-you"
-                className="block w-full py-5 bg-[#FAF8F2] text-[#0A0A0A] text-xs tracking-[0.2em] uppercase text-center hover:bg-[#A38767] hover:text-[#FAF8F2] transition-all duration-300"
+                className="block w-full py-5 bg-[#1A1A1A] text-[#FAF8F2] text-xs tracking-[0.2em] uppercase text-center hover:bg-[#A38767] transition-all duration-300"
               >
                 Purchase Card
               </Link>
-              <p className="text-center text-xs text-[#FAF8F2]/30 italic">
+              <p className="text-center text-xs text-[#1A1A1A]/30 italic">
                 Ships worldwide. NFC-ready on arrival.
               </p>
             </motion.div>
@@ -214,10 +214,10 @@ export function CardPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
-          className="mt-32 pt-16 border-t border-[#FAF8F2]/10"
+          className="mt-32 pt-16 border-t border-[#1A1A1A]/10"
         >
           <div className="text-center mb-16">
-            <span className="text-[10px] tracking-[0.2em] uppercase text-[#FAF8F2]/40">
+            <span className="text-[10px] tracking-[0.2em] uppercase text-[#1A1A1A]/40">
               Currently Available
             </span>
             <h2 className="mt-3 text-3xl font-serif">Member Drops</h2>
@@ -232,18 +232,18 @@ export function CardPage() {
                 transition={{ delay: 1.6 + i * 0.1 }}
                 onMouseEnter={() => setHoveredDrop(drop.id)}
                 onMouseLeave={() => setHoveredDrop(null)}
-                className={`group relative border border-[#FAF8F2]/10 p-8 transition-all duration-500 ${
+                className={`group relative border border-[#1A1A1A]/10 p-8 transition-all duration-500 ${
                   hoveredDrop === drop.id ? 'border-[#A38767]/40 bg-[#A38767]/5' : ''
                 }`}
               >
                 {/* Corner accent */}
                 <div className={`absolute top-0 right-0 w-8 h-8 border-t border-r transition-colors duration-300 ${
-                  hoveredDrop === drop.id ? 'border-[#A38767]/60' : 'border-[#FAF8F2]/10'
+                  hoveredDrop === drop.id ? 'border-[#A38767]/60' : 'border-[#1A1A1A]/10'
                 }`} />
 
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/30">
+                    <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/30">
                       {drop.type}
                     </span>
                     {drop.exclusive && (
@@ -255,13 +255,13 @@ export function CardPage() {
 
                   <h3 className="font-serif text-xl">{drop.title}</h3>
 
-                  <p className="text-xs text-[#FAF8F2]/40 line-clamp-2">
+                  <p className="text-xs text-[#1A1A1A]/40 line-clamp-2">
                     {drop.description}
                   </p>
 
-                  <div className="pt-4 flex justify-between items-center border-t border-[#FAF8F2]/5">
-                    <span className="text-xs text-[#FAF8F2]/30">{drop.trackCount} tracks</span>
-                    <span className="text-xs text-[#FAF8F2]/30">{drop.duration}</span>
+                  <div className="pt-4 flex justify-between items-center border-t border-[#1A1A1A]/5">
+                    <span className="text-xs text-[#1A1A1A]/30">{drop.trackCount} tracks</span>
+                    <span className="text-xs text-[#1A1A1A]/30">{drop.duration}</span>
                   </div>
                 </div>
               </motion.div>
@@ -272,7 +272,7 @@ export function CardPage() {
 
       {/* Bottom Diamond */}
       <div className="fixed bottom-8 right-8">
-        <div className="w-3 h-3 border border-[#FAF8F2]/20 rotate-45" />
+        <div className="w-3 h-3 border border-[#1A1A1A]/20 rotate-45" />
       </div>
     </div>
   );

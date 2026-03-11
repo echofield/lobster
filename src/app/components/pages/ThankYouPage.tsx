@@ -8,7 +8,7 @@ export function ThankYouPage() {
   const orderNumber = `LST-2024-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#FAF8F2] relative overflow-hidden flex flex-col items-center justify-center px-8">
+    <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] relative overflow-hidden flex flex-col items-center justify-center px-8">
       {/* Background Circle */}
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
@@ -44,14 +44,14 @@ export function ThankYouPage() {
           transition={{ delay: 0.5, duration: 0.8 }}
           className="space-y-4"
         >
-          <span className="text-[10px] tracking-[0.2em] uppercase text-[#FAF8F2]/40">
+          <span className="text-[10px] tracking-[0.2em] uppercase text-[#1A1A1A]/40">
             Order Confirmed
           </span>
           <h1 className="text-3xl md:text-4xl font-serif">
             Your card is on its way
           </h1>
-          <p className="text-[#FAF8F2]/50 max-w-sm mx-auto">
-            Thank you for joining Lobster. Your {card.name} will ship within 3-5 business days.
+          <p className="text-[#1A1A1A]/50 max-w-sm mx-auto">
+            Thank you for joining Lobster Sound. Your {card.name} will ship within 3-5 business days.
           </p>
         </motion.div>
 
@@ -60,17 +60,17 @@ export function ThankYouPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.8 }}
-          className="p-8 border border-[#FAF8F2]/10 text-left space-y-6"
+          className="p-8 border border-[#1A1A1A]/10 text-left space-y-6"
         >
           <div className="flex justify-between items-start">
             <div>
               <h3 className="font-serif text-lg">{card.name}</h3>
-              <p className="text-xs text-[#FAF8F2]/30 mt-1">{card.edition}</p>
+              <p className="text-xs text-[#1A1A1A]/30 mt-1">{card.edition}</p>
             </div>
             <span className="font-serif text-lg">{card.price} {card.currency}</span>
           </div>
-          <div className="pt-4 border-t border-[#FAF8F2]/10">
-            <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/30">
+          <div className="pt-4 border-t border-[#1A1A1A]/10">
+            <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/30">
               Order Number
             </span>
             <p className="text-sm mt-1 font-mono">{orderNumber}</p>
@@ -84,7 +84,7 @@ export function ThankYouPage() {
           transition={{ delay: 0.9, duration: 0.8 }}
           className="space-y-6 text-left"
         >
-          <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40 block text-center">
+          <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/40 block text-center">
             What Happens Next
           </span>
           <div className="space-y-4">
@@ -103,7 +103,7 @@ export function ThankYouPage() {
                 <span className="text-[10px] text-[#A38767] w-6">{item.step}</span>
                 <div>
                   <p className="text-sm">{item.text}</p>
-                  <p className="text-xs text-[#FAF8F2]/30 mt-1">{item.sub}</p>
+                  <p className="text-xs text-[#1A1A1A]/30 mt-1">{item.sub}</p>
                 </div>
               </motion.div>
             ))}
@@ -119,11 +119,11 @@ export function ThankYouPage() {
         >
           <Link
             to="/"
-            className="inline-block px-10 py-4 border border-[#FAF8F2]/30 text-xs tracking-[0.2em] uppercase hover:bg-[#FAF8F2] hover:text-[#0A0A0A] transition-all duration-300"
+            className="inline-block px-10 py-4 border border-[#1A1A1A]/30 text-xs tracking-[0.2em] uppercase hover:bg-[#1A1A1A] hover:text-[#FAF8F2] transition-all duration-300"
           >
             Return Home
           </Link>
-          <p className="text-xs text-[#FAF8F2]/30 italic">
+          <p className="text-xs text-[#1A1A1A]/30 italic">
             A confirmation email has been sent
           </p>
         </motion.div>
@@ -137,14 +137,14 @@ export function ThankYouPage() {
         className="fixed top-0 left-0 right-0 px-8 py-6 flex justify-between items-center"
       >
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-4 h-4 border border-[#FAF8F2]/30 rotate-45" />
-          <span className="text-xs tracking-[0.2em] uppercase opacity-60">Lobster</span>
+          <div className="w-4 h-4 border border-[#1A1A1A]/30 rotate-45" />
+          <span className="text-xs tracking-[0.2em] uppercase opacity-60">Lobster Sound</span>
         </Link>
       </motion.nav>
 
       {/* Bottom Diamond */}
       <div className="fixed bottom-8 right-8">
-        <div className="w-3 h-3 border border-[#FAF8F2]/20 rotate-45" />
+        <div className="w-3 h-3 border border-[#1A1A1A]/20 rotate-45" />
       </div>
     </div>
   );

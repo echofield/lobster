@@ -25,7 +25,7 @@ export function DropPage() {
 
   if (!drop) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-[#FAF8F2] flex items-center justify-center">
+      <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] flex items-center justify-center">
         <div className="text-center space-y-4">
           <h1 className="text-2xl font-serif">Signal not found</h1>
           <button
@@ -42,7 +42,7 @@ export function DropPage() {
   const currentTrack = drop.samples?.find(s => s.id === playingId);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#FAF8F2] relative overflow-hidden">
+    <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] relative overflow-hidden">
       {/* Nav */}
       <motion.nav
         initial={{ opacity: 0 }}
@@ -58,7 +58,7 @@ export function DropPage() {
           Return
         </button>
         <div className="flex items-center gap-4">
-          <span className="text-xs tracking-[0.15em] uppercase opacity-40">MERIDIEN</span>
+          <span className="text-xs tracking-[0.15em] uppercase opacity-40">Lobster Sound</span>
           <div className="flex items-center gap-2">
             <span className="text-xs opacity-60">FR</span>
             <span className="opacity-30">/</span>
@@ -106,32 +106,32 @@ export function DropPage() {
               <p className="mt-2 text-sm text-[#FAF8F2]/40">{drop.artist}</p>
             </div>
 
-            <p className="text-sm text-[#FAF8F2]/60 leading-relaxed">
+            <p className="text-sm text-[#1A1A1A]/60 leading-relaxed">
               {drop.description}
             </p>
 
             {/* Specs */}
-            <div className="space-y-4 pt-6 border-t border-[#FAF8F2]/10">
+            <div className="space-y-4 pt-6 border-t border-[#1A1A1A]/10">
               <div className="flex justify-between">
-                <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">TRACKS</span>
+                <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/40">TRACKS</span>
                 <span className="text-sm">{drop.trackCount}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">DURATION</span>
+                <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/40">DURATION</span>
                 <span className="text-sm">{drop.duration}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">RELEASE</span>
+                <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/40">RELEASE</span>
                 <span className="text-sm">{drop.releaseDate}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">TYPE</span>
+                <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/40">TYPE</span>
                 <span className="text-sm uppercase">{drop.type}</span>
               </div>
             </div>
 
             {/* Download Button */}
-            <button className="w-full py-4 border border-[#FAF8F2]/30 text-xs tracking-[0.2em] uppercase flex items-center justify-center gap-3 hover:bg-[#FAF8F2] hover:text-[#0A0A0A] transition-all duration-300">
+            <button className="w-full py-4 border border-[#1A1A1A]/30 text-xs tracking-[0.2em] uppercase flex items-center justify-center gap-3 hover:bg-[#1A1A1A] hover:text-[#FAF8F2] transition-all duration-300">
               <Download className="w-4 h-4" />
               Download All
             </button>
@@ -145,9 +145,9 @@ export function DropPage() {
             className="lg:col-span-8"
           >
             {/* Waveform Instrument Panel */}
-            <div className="relative border border-[#FAF8F2]/10 bg-[#0A0A0A]">
+            <div className="relative border border-[#1A1A1A]/10 bg-[#FAF8F2]">
               {/* Vertical Labels - Right Side */}
-              <div className="absolute -right-16 top-0 bottom-0 flex flex-col justify-between py-4 text-[10px] tracking-[0.1em] text-[#FAF8F2]/30">
+              <div className="absolute -right-16 top-0 bottom-0 flex flex-col justify-between py-4 text-[10px] tracking-[0.1em] text-[#1A1A1A]/30">
                 <span className="rotate-90 origin-left translate-x-4">DISPERSION</span>
                 <span className="rotate-90 origin-left translate-x-4">RESONANCE</span>
                 <span className="rotate-90 origin-left translate-x-4">HARMONICS</span>
@@ -162,11 +162,11 @@ export function DropPage() {
                     animate={{ opacity: 1 }}
                     className="mb-6 text-center"
                   >
-                    <span className="text-[10px] tracking-[0.2em] uppercase text-[#FAF8F2]/40">
+                    <span className="text-[10px] tracking-[0.2em] uppercase text-[#1A1A1A]/40">
                       NOW PLAYING
                     </span>
                     <h3 className="mt-2 font-serif text-xl">{currentTrack.name}</h3>
-                    <p className="text-xs text-[#FAF8F2]/30 mt-1">
+                    <p className="text-xs text-[#1A1A1A]/30 mt-1">
                       {currentTrack.bpm && `${currentTrack.bpm} BPM`}
                       {currentTrack.key && ` · ${currentTrack.key}`}
                     </p>
@@ -174,20 +174,20 @@ export function DropPage() {
                 )}
 
                 {/* Waveform Display */}
-                <div className="relative h-64 border border-[#FAF8F2]/10">
+                <div className="relative h-64 border border-[#1A1A1A]/10">
                   {/* Grid */}
                   <div className="absolute inset-0">
                     {[...Array(8)].map((_, i) => (
                       <div
                         key={`h-${i}`}
-                        className="absolute left-0 right-0 h-px bg-[#FAF8F2]/5"
+                        className="absolute left-0 right-0 h-px bg-[#1A1A1A]/5"
                         style={{ top: `${(i + 1) * 12.5}%` }}
                       />
                     ))}
                     {[...Array(12)].map((_, i) => (
                       <div
                         key={`v-${i}`}
-                        className="absolute top-0 bottom-0 w-px bg-[#FAF8F2]/5"
+                        className="absolute top-0 bottom-0 w-px bg-[#1A1A1A]/5"
                         style={{ left: `${(i + 1) * 8.33}%` }}
                       />
                     ))}
@@ -224,7 +224,7 @@ export function DropPage() {
                     <motion.path
                       d="M 0 100 Q 50 130, 100 100 T 200 100 T 300 100 T 400 100"
                       fill="none"
-                      stroke="#FAF8F2"
+                      stroke="#1A1A1A"
                       strokeWidth="0.5"
                       strokeOpacity="0.2"
                       animate={{
@@ -242,12 +242,12 @@ export function DropPage() {
 
                   {/* Center Label */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-                    <div className="px-4 py-2 border border-[#FAF8F2]/20 bg-[#0A0A0A]">
+                    <div className="px-4 py-2 border border-[#1A1A1A]/20 bg-[#FAF8F2]">
                       <span className="text-xs tracking-[0.15em] uppercase">
                         {playingId ? 'ACTIVE' : 'IDLE'}
                       </span>
                     </div>
-                    <p className="mt-2 text-[10px] text-[#FAF8F2]/40">
+                    <p className="mt-2 text-[10px] text-[#1A1A1A]/40">
                       {playingId ? 'SIGNAL DETECTED' : 'SELECT A TRACK'}
                     </p>
                   </div>
@@ -259,23 +259,23 @@ export function DropPage() {
                     <motion.div
                       animate={{ scale: playingId ? [1, 1.3, 1] : 1 }}
                       transition={{ duration: 0.5, repeat: playingId ? Infinity : 0 }}
-                      className={`w-2 h-2 rounded-full ${playingId ? 'bg-[#A38767]' : 'bg-[#FAF8F2]/20'}`}
+                      className={`w-2 h-2 rounded-full ${playingId ? 'bg-[#A38767]' : 'bg-[#1A1A1A]/20'}`}
                     />
-                    <div className="flex-1 h-px bg-[#FAF8F2]/10 relative">
+                    <div className="flex-1 h-px bg-[#1A1A1A]/10 relative">
                       <div className="absolute inset-y-0 left-0 bg-[#A38767]/60" style={{ width: playingId ? '45%' : '0%' }} />
                       {/* Ticks */}
                       {[...Array(20)].map((_, i) => (
                         <div
                           key={i}
                           className={`absolute top-1/2 -translate-y-1/2 w-px ${
-                            i % 5 === 0 ? 'h-2 bg-[#FAF8F2]/20' : 'h-1 bg-[#FAF8F2]/10'
+                            i % 5 === 0 ? 'h-2 bg-[#1A1A1A]/20' : 'h-1 bg-[#1A1A1A]/10'
                           }`}
                           style={{ left: `${(i + 1) * 5}%` }}
                         />
                       ))}
                     </div>
                   </div>
-                  <div className="flex justify-between mt-2 text-[10px] text-[#FAF8F2]/30">
+                  <div className="flex justify-between mt-2 text-[10px] text-[#1A1A1A]/30">
                     <span>0</span>
                     <span>1</span>
                   </div>
@@ -284,9 +284,9 @@ export function DropPage() {
             </div>
 
             {/* Track List */}
-            <div className="mt-8 border border-[#FAF8F2]/10">
-              <div className="px-4 py-3 border-b border-[#FAF8F2]/10">
-                <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">
+            <div className="mt-8 border border-[#1A1A1A]/10">
+              <div className="px-4 py-3 border-b border-[#1A1A1A]/10">
+                <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/40">
                   TRACKS · {drop.samples?.length || 0}
                 </span>
               </div>
@@ -309,7 +309,7 @@ export function DropPage() {
 
       {/* Bottom Right Diamond */}
       <div className="fixed bottom-8 right-8">
-        <div className="w-3 h-3 border border-[#FAF8F2]/20 rotate-45" />
+        <div className="w-3 h-3 border border-[#1A1A1A]/20 rotate-45" />
       </div>
     </div>
   );
