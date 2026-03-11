@@ -148,60 +148,99 @@ export function HomePage() {
 
             {/* CENTER PLAYER - Abstract Geometric */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-              {/* Geometric Play Interface */}
+              {/* Geometric Play Interface - More Pronounced */}
               <motion.button
                 onClick={() => setIsPlaying(!isPlaying)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="relative mx-auto mb-6"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="relative mx-auto mb-8"
               >
-                {/* Outer square frame */}
+                {/* Outer glow ring */}
+                <motion.div
+                  animate={{
+                    opacity: isPlaying ? [0.3, 0.6, 0.3] : 0,
+                    scale: isPlaying ? [1, 1.1, 1] : 1
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute -inset-4 rounded-sm"
+                  style={{
+                    background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)'
+                  }}
+                />
+
+                {/* Main square frame - LARGER & MORE VISIBLE */}
                 <motion.div
                   animate={{ rotate: isPlaying ? 45 : 0 }}
-                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                  className="w-20 h-20 border border-[#1A1A1A]/15 relative"
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                  className="w-28 h-28 relative"
                   style={{
+                    border: isPlaying ? '1px solid rgba(139, 92, 246, 0.5)' : '1px solid rgba(26, 26, 26, 0.2)',
                     boxShadow: isPlaying
-                      ? '0 0 40px rgba(139, 92, 246, 0.2), inset 0 0 30px rgba(139, 92, 246, 0.05)'
-                      : 'none'
+                      ? '0 0 60px rgba(139, 92, 246, 0.25), inset 0 0 40px rgba(139, 92, 246, 0.08)'
+                      : '0 0 30px rgba(26, 26, 26, 0.03)'
                   }}
                 >
-                  {/* Inner diamond */}
+                  {/* Inner square */}
                   <motion.div
                     animate={{
-                      scale: isPlaying ? [1, 0.85, 1] : 1,
-                      rotate: isPlaying ? -45 : 0
+                      scale: isPlaying ? [1, 0.88, 1] : 1,
+                      rotate: isPlaying ? -45 : 0,
+                      opacity: isPlaying ? 1 : 0.6
                     }}
                     transition={{
-                      scale: { duration: 2, repeat: Infinity, ease: 'easeInOut' },
-                      rotate: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+                      scale: { duration: 2.5, repeat: Infinity, ease: 'easeInOut' },
+                      rotate: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
                     }}
-                    className="absolute inset-3 border border-[#8B5CF6]/30"
+                    className="absolute inset-4"
                     style={{
+                      border: isPlaying ? '1px solid rgba(139, 92, 246, 0.4)' : '1px solid rgba(26, 26, 26, 0.1)',
                       background: isPlaying
-                        ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(196, 181, 253, 0.05) 100%)'
+                        ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(167, 139, 250, 0.04) 100%)'
                         : 'transparent'
                     }}
                   />
+
+                  {/* Innermost square */}
+                  <motion.div
+                    animate={{
+                      scale: isPlaying ? [1, 1.1, 1] : 1,
+                      opacity: isPlaying ? [0.5, 0.8, 0.5] : 0.3
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+                    className="absolute inset-8"
+                    style={{
+                      border: '1px solid rgba(139, 92, 246, 0.3)'
+                    }}
+                  />
+
                   {/* Center dot */}
                   <motion.div
                     animate={{
-                      scale: isPlaying ? [1, 1.5, 1] : 1,
-                      opacity: isPlaying ? [0.6, 1, 0.6] : 0.3
+                      scale: isPlaying ? [1, 1.8, 1] : 1,
+                      opacity: isPlaying ? [0.6, 1, 0.6] : 0.4
                     }}
                     transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2"
                     style={{
                       background: isPlaying ? '#8B5CF6' : '#1A1A1A',
-                      boxShadow: isPlaying ? '0 0 15px rgba(139, 92, 246, 0.6)' : 'none'
+                      boxShadow: isPlaying ? '0 0 20px rgba(139, 92, 246, 0.8)' : 'none'
                     }}
                   />
                 </motion.div>
-                {/* Corner accents */}
-                <div className="absolute -top-1 -left-1 w-2 h-2 border-t border-l border-[#8B5CF6]/20" />
-                <div className="absolute -top-1 -right-1 w-2 h-2 border-t border-r border-[#8B5CF6]/20" />
-                <div className="absolute -bottom-1 -left-1 w-2 h-2 border-b border-l border-[#8B5CF6]/20" />
-                <div className="absolute -bottom-1 -right-1 w-2 h-2 border-b border-r border-[#8B5CF6]/20" />
+
+                {/* Corner accents - LARGER */}
+                <div className="absolute -top-2 -left-2 w-3 h-3 border-t border-l border-[#8B5CF6]/30" />
+                <div className="absolute -top-2 -right-2 w-3 h-3 border-t border-r border-[#8B5CF6]/30" />
+                <div className="absolute -bottom-2 -left-2 w-3 h-3 border-b border-l border-[#8B5CF6]/30" />
+                <div className="absolute -bottom-2 -right-2 w-3 h-3 border-b border-r border-[#8B5CF6]/30" />
+
+                {/* Diagonal measurement lines */}
+                <svg className="absolute -inset-6 w-[calc(100%+48px)] h-[calc(100%+48px)] pointer-events-none opacity-20">
+                  <line x1="0" y1="0" x2="12" y2="12" stroke="#8B5CF6" strokeWidth="0.5" />
+                  <line x1="100%" y1="0" x2="calc(100% - 12px)" y2="12" stroke="#8B5CF6" strokeWidth="0.5" />
+                  <line x1="0" y1="100%" x2="12" y2="calc(100% - 12px)" stroke="#8B5CF6" strokeWidth="0.5" />
+                  <line x1="100%" y1="100%" x2="calc(100% - 12px)" y2="calc(100% - 12px)" stroke="#8B5CF6" strokeWidth="0.5" />
+                </svg>
               </motion.button>
 
               {/* Track Info */}
@@ -215,55 +254,87 @@ export function HomePage() {
                 <p className="text-xs opacity-40">{previewTracks[currentTrack].drop}</p>
               </motion.div>
 
-              {/* Abstract ARCHÉ-inspired signal visualization */}
+              {/* Abstract ARCHÉ-inspired signal visualization - IMPROVED */}
               {isPlaying && (
                 <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="mt-5 w-32 h-8 relative"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="mt-6 w-40 h-12 relative mx-auto"
                 >
-                  <svg viewBox="0 0 120 30" className="w-full h-full">
-                    {/* Oscillating sine wave */}
+                  <svg viewBox="0 0 160 48" className="w-full h-full">
+                    {/* Horizontal baseline */}
+                    <line x1="0" y1="24" x2="160" y2="24" stroke="#1A1A1A" strokeWidth="0.3" strokeOpacity="0.1" />
+
+                    {/* Main oscillating wave */}
                     <motion.path
-                      d="M 0 15 Q 15 5, 30 15 T 60 15 T 90 15 T 120 15"
+                      d="M 0 24 C 20 24, 25 8, 40 24 S 60 40, 80 24 S 100 8, 120 24 S 140 40, 160 24"
+                      fill="none"
+                      stroke="url(#waveGradient)"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      animate={{
+                        d: [
+                          "M 0 24 C 20 24, 25 8, 40 24 S 60 40, 80 24 S 100 8, 120 24 S 140 40, 160 24",
+                          "M 0 24 C 20 24, 25 40, 40 24 S 60 8, 80 24 S 100 40, 120 24 S 140 8, 160 24",
+                          "M 0 24 C 20 24, 25 8, 40 24 S 60 40, 80 24 S 100 8, 120 24 S 140 40, 160 24"
+                        ]
+                      }}
+                      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+
+                    {/* Ghost wave - offset */}
+                    <motion.path
+                      d="M 0 24 C 20 24, 30 14, 50 24 S 70 34, 90 24 S 110 14, 130 24 S 150 34, 160 24"
                       fill="none"
                       stroke="#8B5CF6"
-                      strokeWidth="0.8"
-                      strokeOpacity="0.6"
-                      animate={{
-                        d: [
-                          "M 0 15 Q 15 5, 30 15 T 60 15 T 90 15 T 120 15",
-                          "M 0 15 Q 15 25, 30 15 T 60 15 T 90 15 T 120 15",
-                          "M 0 15 Q 15 5, 30 15 T 60 15 T 90 15 T 120 15"
-                        ]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                    />
-                    {/* Secondary wave */}
-                    <motion.path
-                      d="M 0 15 Q 20 20, 40 15 T 80 15 T 120 15"
-                      fill="none"
-                      stroke="#A78BFA"
                       strokeWidth="0.5"
-                      strokeOpacity="0.3"
+                      strokeOpacity="0.2"
                       animate={{
                         d: [
-                          "M 0 15 Q 20 20, 40 15 T 80 15 T 120 15",
-                          "M 0 15 Q 20 10, 40 15 T 80 15 T 120 15",
-                          "M 0 15 Q 20 20, 40 15 T 80 15 T 120 15"
+                          "M 0 24 C 20 24, 30 14, 50 24 S 70 34, 90 24 S 110 14, 130 24 S 150 34, 160 24",
+                          "M 0 24 C 20 24, 30 34, 50 24 S 70 14, 90 24 S 110 34, 130 24 S 150 14, 160 24",
+                          "M 0 24 C 20 24, 30 14, 50 24 S 70 34, 90 24 S 110 14, 130 24 S 150 34, 160 24"
                         ]
                       }}
-                      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+                      transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
                     />
-                    {/* Center marker */}
+
+                    {/* Measurement ticks */}
+                    {[0, 40, 80, 120, 160].map((x, i) => (
+                      <line key={i} x1={x} y1="42" x2={x} y2="46" stroke="#8B5CF6" strokeWidth="0.5" strokeOpacity="0.3" />
+                    ))}
+
+                    {/* Center node */}
                     <motion.circle
-                      cx="60"
-                      cy="15"
-                      r="2"
+                      cx="80"
+                      cy="24"
+                      r="3"
+                      fill="none"
+                      stroke="#8B5CF6"
+                      strokeWidth="1"
+                      animate={{
+                        r: [3, 5, 3],
+                        strokeOpacity: [0.4, 0.8, 0.4]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                    <motion.circle
+                      cx="80"
+                      cy="24"
+                      r="1"
                       fill="#8B5CF6"
-                      animate={{ opacity: [0.4, 1, 0.4], r: [2, 3, 2] }}
+                      animate={{ opacity: [0.6, 1, 0.6] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
                     />
+
+                    {/* Gradient definition */}
+                    <defs>
+                      <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.3" />
+                        <stop offset="50%" stopColor="#8B5CF6" stopOpacity="0.8" />
+                        <stop offset="100%" stopColor="#A78BFA" stopOpacity="0.3" />
+                      </linearGradient>
+                    </defs>
                   </svg>
                 </motion.div>
               )}
