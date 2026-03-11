@@ -32,22 +32,68 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] relative overflow-hidden flex flex-col">
-      {/* Soft ambient glow backgrounds */}
+      {/* Soft ambient glow backgrounds - more violet/lavender */}
       <div className="fixed inset-0 pointer-events-none">
         <div
-          className="absolute top-1/4 left-1/4 w-[60vw] h-[60vw] rounded-full opacity-30 blur-[120px]"
+          className="absolute top-1/4 left-1/4 w-[60vw] h-[60vw] rounded-full opacity-25 blur-[120px]"
           style={{
-            background: 'radial-gradient(circle, rgba(199, 146, 234, 0.4) 0%, rgba(255, 182, 193, 0.3) 40%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, rgba(167, 139, 250, 0.2) 40%, transparent 70%)',
             transform: `translate(${(mousePos.x - 0.5) * 30}px, ${(mousePos.y - 0.5) * 30}px)`
           }}
         />
         <div
-          className="absolute bottom-1/4 right-1/4 w-[50vw] h-[50vw] rounded-full opacity-25 blur-[100px]"
+          className="absolute bottom-1/4 right-1/4 w-[50vw] h-[50vw] rounded-full opacity-20 blur-[100px]"
           style={{
-            background: 'radial-gradient(circle, rgba(255, 200, 150, 0.5) 0%, rgba(255, 160, 180, 0.3) 50%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(196, 181, 253, 0.4) 0%, rgba(139, 92, 246, 0.2) 50%, transparent 70%)',
             transform: `translate(${(mousePos.x - 0.5) * -20}px, ${(mousePos.y - 0.5) * -20}px)`
           }}
         />
+      </div>
+
+      {/* Floating geometric shapes */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        {/* Rotating triangle - top left */}
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 120, repeat: Infinity, ease: 'linear' }}
+          className="absolute top-[15%] left-[10%]"
+          style={{ transform: `translate(${(mousePos.x - 0.5) * 15}px, ${(mousePos.y - 0.5) * 15}px)` }}
+        >
+          <svg width="40" height="35" viewBox="0 0 40 35" fill="none" className="opacity-[0.08]">
+            <path d="M20 0L40 35H0L20 0Z" stroke="#8B5CF6" strokeWidth="0.5" />
+          </svg>
+        </motion.div>
+
+        {/* Floating hexagon - top right */}
+        <motion.div
+          animate={{ y: [0, -10, 0], rotate: [0, 5, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-[20%] right-[15%]"
+        >
+          <svg width="50" height="44" viewBox="0 0 50 44" fill="none" className="opacity-[0.06]">
+            <path d="M25 0L50 12V32L25 44L0 32V12L25 0Z" stroke="#8B5CF6" strokeWidth="0.5" />
+          </svg>
+        </motion.div>
+
+        {/* Small diamond - bottom left */}
+        <motion.div
+          animate={{ scale: [1, 1.1, 1], opacity: [0.06, 0.1, 0.06] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute bottom-[25%] left-[20%]"
+        >
+          <div className="w-6 h-6 border border-[#8B5CF6] rotate-45" style={{ opacity: 0.15 }} />
+        </motion.div>
+
+        {/* Cross shape - center right */}
+        <motion.div
+          animate={{ rotate: [0, 90, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-[45%] right-[8%]"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="opacity-[0.08]">
+            <path d="M12 0V24M0 12H24" stroke="#A78BFA" strokeWidth="0.5" />
+          </svg>
+        </motion.div>
       </div>
 
       {/* Nav */}
@@ -83,45 +129,79 @@ export function HomePage() {
             className="w-[70vmin] h-[70vmin] rounded-full border border-[#1A1A1A]/10 relative"
             style={{
               transform: `translate(${(mousePos.x - 0.5) * 10}px, ${(mousePos.y - 0.5) * 10}px)`,
-              boxShadow: '0 0 60px rgba(199, 146, 234, 0.15), 0 0 120px rgba(255, 182, 193, 0.1)'
+              boxShadow: '0 0 80px rgba(139, 92, 246, 0.08), 0 0 160px rgba(167, 139, 250, 0.05)'
             }}
           >
-            {/* Inner Candy Gradient */}
+            {/* Inner Gradient - more violet */}
             <div
               className="absolute inset-0 rounded-full"
               style={{
-                background: `radial-gradient(circle at ${50 + (mousePos.x - 0.5) * 20}% ${50 + (mousePos.y - 0.5) * 20}%, rgba(199, 146, 234, 0.15) 0%, rgba(255, 182, 193, 0.1) 30%, transparent 60%)`
+                background: `radial-gradient(circle at ${50 + (mousePos.x - 0.5) * 20}% ${50 + (mousePos.y - 0.5) * 20}%, rgba(139, 92, 246, 0.08) 0%, rgba(196, 181, 253, 0.05) 40%, transparent 70%)`
               }}
             />
 
             {/* Grid Lines */}
-            <div className="absolute inset-0 rounded-full overflow-hidden opacity-10">
+            <div className="absolute inset-0 rounded-full overflow-hidden opacity-[0.06]">
               <div className="absolute top-1/2 left-0 right-0 h-px bg-[#1A1A1A]" />
               <div className="absolute left-1/2 top-0 bottom-0 w-px bg-[#1A1A1A]" />
             </div>
 
-            {/* CENTER PLAYER */}
+            {/* CENTER PLAYER - Abstract Geometric */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-              {/* Play Button with glow */}
+              {/* Geometric Play Interface */}
               <motion.button
                 onClick={() => setIsPlaying(!isPlaying)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-24 h-24 rounded-full border-2 border-[#1A1A1A]/20 flex items-center justify-center transition-all duration-300 mx-auto relative"
-                style={{
-                  background: isPlaying
-                    ? 'linear-gradient(135deg, rgba(199, 146, 234, 0.15) 0%, rgba(255, 182, 193, 0.15) 100%)'
-                    : 'transparent',
-                  boxShadow: isPlaying
-                    ? '0 0 40px rgba(199, 146, 234, 0.3), 0 0 80px rgba(255, 182, 193, 0.2)'
-                    : 'none'
-                }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="relative mx-auto mb-6"
               >
-                {isPlaying ? (
-                  <Pause className="w-8 h-8" style={{ color: '#C792EA' }} />
-                ) : (
-                  <Play className="w-8 h-8 text-[#1A1A1A]/50 ml-1" />
-                )}
+                {/* Outer square frame */}
+                <motion.div
+                  animate={{ rotate: isPlaying ? 45 : 0 }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  className="w-20 h-20 border border-[#1A1A1A]/15 relative"
+                  style={{
+                    boxShadow: isPlaying
+                      ? '0 0 40px rgba(139, 92, 246, 0.2), inset 0 0 30px rgba(139, 92, 246, 0.05)'
+                      : 'none'
+                  }}
+                >
+                  {/* Inner diamond */}
+                  <motion.div
+                    animate={{
+                      scale: isPlaying ? [1, 0.85, 1] : 1,
+                      rotate: isPlaying ? -45 : 0
+                    }}
+                    transition={{
+                      scale: { duration: 2, repeat: Infinity, ease: 'easeInOut' },
+                      rotate: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+                    }}
+                    className="absolute inset-3 border border-[#8B5CF6]/30"
+                    style={{
+                      background: isPlaying
+                        ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(196, 181, 253, 0.05) 100%)'
+                        : 'transparent'
+                    }}
+                  />
+                  {/* Center dot */}
+                  <motion.div
+                    animate={{
+                      scale: isPlaying ? [1, 1.5, 1] : 1,
+                      opacity: isPlaying ? [0.6, 1, 0.6] : 0.3
+                    }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2"
+                    style={{
+                      background: isPlaying ? '#8B5CF6' : '#1A1A1A',
+                      boxShadow: isPlaying ? '0 0 15px rgba(139, 92, 246, 0.6)' : 'none'
+                    }}
+                  />
+                </motion.div>
+                {/* Corner accents */}
+                <div className="absolute -top-1 -left-1 w-2 h-2 border-t border-l border-[#8B5CF6]/20" />
+                <div className="absolute -top-1 -right-1 w-2 h-2 border-t border-r border-[#8B5CF6]/20" />
+                <div className="absolute -bottom-1 -left-1 w-2 h-2 border-b border-l border-[#8B5CF6]/20" />
+                <div className="absolute -bottom-1 -right-1 w-2 h-2 border-b border-r border-[#8B5CF6]/20" />
               </motion.button>
 
               {/* Track Info */}
@@ -129,28 +209,35 @@ export function HomePage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.2 }}
-                className="mt-6 space-y-1"
+                className="space-y-1"
               >
-                <p className="text-sm font-medium">{previewTracks[currentTrack].name}</p>
+                <p className="text-sm font-medium tracking-wide">{previewTracks[currentTrack].name}</p>
                 <p className="text-xs opacity-40">{previewTracks[currentTrack].drop}</p>
               </motion.div>
 
-              {/* Mini Waveform with candy gradient */}
+              {/* Abstract signal visualization */}
               {isPlaying && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="mt-4 flex items-center justify-center gap-0.5"
+                  className="mt-5 flex items-center justify-center gap-1"
                 >
-                  {[...Array(20)].map((_, i) => (
+                  {[...Array(7)].map((_, i) => (
                     <motion.div
                       key={i}
-                      animate={{ height: [8, 20 + Math.random() * 12, 8] }}
-                      transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.05 }}
-                      className="w-0.5 rounded-full"
+                      animate={{
+                        scaleY: [1, 1.5 + Math.random(), 1],
+                        opacity: [0.4, 0.8, 0.4]
+                      }}
+                      transition={{
+                        duration: 0.8 + Math.random() * 0.4,
+                        repeat: Infinity,
+                        delay: i * 0.1,
+                        ease: 'easeInOut'
+                      }}
+                      className="w-px h-4"
                       style={{
-                        height: 8,
-                        background: `linear-gradient(180deg, #C792EA ${i * 5}%, #FFB6C1 100%)`
+                        background: 'linear-gradient(180deg, #8B5CF6 0%, #C4B5FD 100%)'
                       }}
                     />
                   ))}
@@ -165,25 +252,43 @@ export function HomePage() {
               transition={{ delay: 1, duration: 1 }}
               className="absolute bottom-[15%] left-1/2 -translate-x-1/2 text-center"
             >
-              <p className="font-serif italic text-lg opacity-40 tracking-wide">
+              <p className="font-serif italic text-lg opacity-30 tracking-wide">
                 Sound is access
               </p>
             </motion.div>
           </motion.div>
 
-          {/* Floating Cube - Right side */}
+          {/* Floating Cube - Right side with subtle animation */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 1.5, duration: 1 }}
             className="absolute right-[-80px] top-1/2 -translate-y-1/2"
           >
-            <svg width="60" height="70" viewBox="0 0 60 70" fill="none" className="opacity-20">
-              <path d="M30 0L60 17.5V52.5L30 70L0 52.5V17.5L30 0Z" stroke="#1A1A1A" strokeWidth="0.5" />
-              <path d="M30 35L60 17.5" stroke="#1A1A1A" strokeWidth="0.5" />
-              <path d="M30 35L0 17.5" stroke="#1A1A1A" strokeWidth="0.5" />
-              <path d="M30 35V70" stroke="#1A1A1A" strokeWidth="0.5" />
-            </svg>
+            <motion.svg
+              width="60"
+              height="70"
+              viewBox="0 0 60 70"
+              fill="none"
+              className="opacity-20"
+              animate={{
+                rotateY: [0, 10, 0, -10, 0],
+                rotateX: [0, 5, 0, -5, 0]
+              }}
+              transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ transformStyle: 'preserve-3d' }}
+            >
+              <motion.path
+                d="M30 0L60 17.5V52.5L30 70L0 52.5V17.5L30 0Z"
+                stroke="#8B5CF6"
+                strokeWidth="0.5"
+                animate={{ opacity: [0.3, 0.5, 0.3] }}
+                transition={{ duration: 4, repeat: Infinity }}
+              />
+              <path d="M30 35L60 17.5" stroke="#8B5CF6" strokeWidth="0.5" />
+              <path d="M30 35L0 17.5" stroke="#8B5CF6" strokeWidth="0.5" />
+              <path d="M30 35V70" stroke="#8B5CF6" strokeWidth="0.5" />
+            </motion.svg>
           </motion.div>
 
           {/* Track Selector - Left side */}
@@ -191,21 +296,21 @@ export function HomePage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 1.5, duration: 1 }}
-            className="absolute left-[-120px] top-1/2 -translate-y-1/2 space-y-3"
+            className="absolute left-[-100px] top-1/2 -translate-y-1/2 space-y-4"
           >
             {previewTracks.map((track, i) => (
               <button
                 key={i}
                 onClick={() => { setCurrentTrack(i); setIsPlaying(true); }}
                 className={`block text-left transition-all duration-300 relative ${
-                  currentTrack === i ? 'opacity-100' : 'opacity-30 hover:opacity-60'
+                  currentTrack === i ? 'opacity-100' : 'opacity-25 hover:opacity-50'
                 }`}
               >
                 <span
-                  className="text-[10px] tracking-wider"
+                  className="text-[10px] tracking-wider font-light"
                   style={{
-                    color: currentTrack === i ? '#C792EA' : undefined,
-                    textShadow: currentTrack === i ? '0 0 10px rgba(199, 146, 234, 0.5)' : undefined
+                    color: currentTrack === i ? '#8B5CF6' : undefined,
+                    textShadow: currentTrack === i ? '0 0 12px rgba(139, 92, 246, 0.4)' : undefined
                   }}
                 >
                   {String(i + 1).padStart(2, '0')}
@@ -213,10 +318,10 @@ export function HomePage() {
                 {currentTrack === i && (
                   <motion.div
                     layoutId="trackIndicator"
-                    className="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full"
+                    className="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-1"
                     style={{
-                      background: 'linear-gradient(135deg, #C792EA 0%, #FFB6C1 100%)',
-                      boxShadow: '0 0 8px rgba(199, 146, 234, 0.6)'
+                      background: '#8B5CF6',
+                      boxShadow: '0 0 10px rgba(139, 92, 246, 0.8)'
                     }}
                   />
                 )}
@@ -234,16 +339,16 @@ export function HomePage() {
         >
           <Link
             to="/card"
-            className="group inline-block px-8 py-4 border border-[#1A1A1A]/20 text-xs tracking-[0.2em] uppercase transition-all duration-500 relative overflow-hidden"
+            className="group inline-block px-8 py-4 border border-[#1A1A1A]/15 text-xs tracking-[0.2em] uppercase transition-all duration-500 relative overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, rgba(199, 146, 234, 0.05) 0%, rgba(255, 182, 193, 0.05) 100%)'
+              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.03) 0%, rgba(196, 181, 253, 0.03) 100%)'
             }}
           >
             <span className="relative z-10 group-hover:text-white transition-colors duration-300">Get Your Card</span>
             <div
               className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               style={{
-                background: 'linear-gradient(135deg, #C792EA 0%, #FFB6C1 100%)'
+                background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)'
               }}
             />
           </Link>
@@ -285,11 +390,11 @@ export function HomePage() {
             key={tab}
             onClick={() => setActiveTab(i)}
             className={`text-[10px] tracking-[0.15em] uppercase transition-all duration-300 relative ${
-              activeTab === i ? 'opacity-100' : 'opacity-30 hover:opacity-60'
+              activeTab === i ? 'opacity-100' : 'opacity-25 hover:opacity-50'
             }`}
             style={{
-              color: activeTab === i ? '#C792EA' : undefined,
-              textShadow: activeTab === i ? '0 0 15px rgba(199, 146, 234, 0.4)' : undefined
+              color: activeTab === i ? '#8B5CF6' : undefined,
+              textShadow: activeTab === i ? '0 0 12px rgba(139, 92, 246, 0.3)' : undefined
             }}
           >
             {tab}
@@ -298,7 +403,7 @@ export function HomePage() {
                 layoutId="tabIndicator"
                 className="absolute -bottom-2 left-0 right-0 h-px"
                 style={{
-                  background: 'linear-gradient(90deg, transparent 0%, #C792EA 50%, transparent 100%)'
+                  background: 'linear-gradient(90deg, transparent 0%, #8B5CF6 50%, transparent 100%)'
                 }}
               />
             )}
