@@ -2,12 +2,136 @@ import { Link, useParams } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { drops, memberCards } from '@/data/cards';
 import { useState, useEffect } from 'react';
+import { Play, Pause, ShoppingBag } from 'lucide-react';
+
+// Abstract cover patterns
+const CoverPatterns = {
+  squares: ({ isPlaying }: { isPlaying: boolean }) => (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      {[0, 1, 2, 3].map((i) => (
+        <motion.rect
+          key={i}
+          x={20 + i * 5}
+          y={20 + i * 5}
+          width={60 - i * 10}
+          height={60 - i * 10}
+          fill="none"
+          stroke={isPlaying ? '#8B5CF6' : '#1A1A1A'}
+          strokeWidth="0.5"
+          strokeOpacity={isPlaying ? 0.8 - i * 0.15 : 0.2 - i * 0.03}
+          animate={isPlaying ? { rotate: [0, 90], scale: [1, 1.05, 1] } : {}}
+          transition={{ duration: 4, repeat: Infinity, delay: i * 0.2 }}
+          style={{ transformOrigin: '50px 50px' }}
+        />
+      ))}
+      <motion.rect
+        x="45"
+        y="45"
+        width="10"
+        height="10"
+        fill={isPlaying ? '#8B5CF6' : '#1A1A1A'}
+        fillOpacity={isPlaying ? 0.6 : 0.1}
+        animate={isPlaying ? { scale: [1, 1.3, 1] } : {}}
+        transition={{ duration: 1.5, repeat: Infinity }}
+        style={{ transformOrigin: '50px 50px' }}
+      />
+    </svg>
+  ),
+  circles: ({ isPlaying }: { isPlaying: boolean }) => (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      {[0, 1, 2, 3, 4].map((i) => (
+        <motion.circle
+          key={i}
+          cx="50"
+          cy="50"
+          r={10 + i * 8}
+          fill="none"
+          stroke={isPlaying ? '#8B5CF6' : '#1A1A1A'}
+          strokeWidth="0.5"
+          strokeOpacity={isPlaying ? 0.6 - i * 0.1 : 0.15 - i * 0.02}
+          animate={isPlaying ? { r: [10 + i * 8, 12 + i * 8, 10 + i * 8] } : {}}
+          transition={{ duration: 2, repeat: Infinity, delay: i * 0.15 }}
+        />
+      ))}
+      <motion.circle
+        cx="50"
+        cy="50"
+        r="4"
+        fill={isPlaying ? '#8B5CF6' : '#1A1A1A'}
+        fillOpacity={isPlaying ? 0.8 : 0.2}
+        animate={isPlaying ? { scale: [1, 1.5, 1] } : {}}
+        transition={{ duration: 1, repeat: Infinity }}
+        style={{ transformOrigin: '50px 50px' }}
+      />
+    </svg>
+  ),
+  grid: ({ isPlaying }: { isPlaying: boolean }) => (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      {Array.from({ length: 5 }).map((_, row) =>
+        Array.from({ length: 5 }).map((_, col) => (
+          <motion.rect
+            key={`${row}-${col}`}
+            x={20 + col * 15}
+            y={20 + row * 15}
+            width="8"
+            height="8"
+            fill={isPlaying ? '#8B5CF6' : '#1A1A1A'}
+            fillOpacity={isPlaying ? 0.1 + (row + col) * 0.05 : 0.05 + (row + col) * 0.02}
+            animate={isPlaying ? {
+              scale: [1, 1.2, 1],
+              fillOpacity: [0.1 + (row + col) * 0.05, 0.3 + (row + col) * 0.05, 0.1 + (row + col) * 0.05]
+            } : {}}
+            transition={{ duration: 1.5, repeat: Infinity, delay: (row + col) * 0.1 }}
+            style={{ transformOrigin: `${24 + col * 15}px ${24 + row * 15}px` }}
+          />
+        ))
+      )}
+    </svg>
+  ),
+  hexagon: ({ isPlaying }: { isPlaying: boolean }) => (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      {[0, 1, 2].map((i) => (
+        <motion.polygon
+          key={i}
+          points="50,15 80,32.5 80,67.5 50,85 20,67.5 20,32.5"
+          fill="none"
+          stroke={isPlaying ? '#8B5CF6' : '#1A1A1A'}
+          strokeWidth="0.5"
+          strokeOpacity={isPlaying ? 0.6 - i * 0.15 : 0.15 - i * 0.03}
+          transform={`scale(${1 - i * 0.2})`}
+          style={{ transformOrigin: '50px 50px' }}
+          animate={isPlaying ? { rotate: [0, 60, 0] } : {}}
+          transition={{ duration: 6, repeat: Infinity, delay: i * 0.3 }}
+        />
+      ))}
+      <motion.circle
+        cx="50"
+        cy="50"
+        r="5"
+        fill={isPlaying ? '#8B5CF6' : '#1A1A1A'}
+        fillOpacity={isPlaying ? 0.6 : 0.15}
+        animate={isPlaying ? { scale: [1, 1.4, 1] } : {}}
+        transition={{ duration: 1.2, repeat: Infinity }}
+        style={{ transformOrigin: '50px 50px' }}
+      />
+    </svg>
+  ),
+};
+
+const patterns = ['squares', 'circles', 'grid', 'hexagon'] as const;
 
 export function MemberAccessPage() {
   const { token } = useParams();
   const card = memberCards[0];
   const [phase, setPhase] = useState<'detecting' | 'recognized' | 'granted' | 'ready'>('detecting');
   const [hoveredDrop, setHoveredDrop] = useState<string | null>(null);
+  const [playingDrop, setPlayingDrop] = useState<string | null>(null);
+
+  const togglePlay = (dropId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setPlayingDrop(playingDrop === dropId ? null : dropId);
+  };
 
   useEffect(() => {
     // NFC Magic Sequence
@@ -240,7 +364,7 @@ export function MemberAccessPage() {
       </motion.nav>
 
       {/* Main Content */}
-      <div className="pt-32 pb-20 px-8 md:px-16 max-w-5xl mx-auto">
+      <div className="pt-32 pb-20 px-8 md:px-16 max-w-6xl mx-auto">
         {/* Welcome Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -281,114 +405,146 @@ export function MemberAccessPage() {
           animate={{ opacity: isReady ? 1 : 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
         >
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex justify-between items-center mb-10">
             <span className="text-[10px] tracking-[0.2em] uppercase text-[#1A1A1A]/40">
-              Available Signals
+              Available Packs
             </span>
             <span className="text-xs text-[#1A1A1A]/30">
               {drops.length} unlocked
             </span>
           </div>
 
-          {/* Drops List */}
-          <div className="space-y-4">
-            {drops.map((drop, i) => (
-              <motion.div
-                key={drop.id}
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: isReady ? 1 : 0, x: isReady ? 0 : -30 }}
-                transition={{ delay: 0.4 + i * 0.1, duration: 0.6 }}
-              >
-                <Link
-                  to={`/drop/${drop.id}`}
+          {/* Album Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {drops.map((drop, i) => {
+              const PatternComponent = CoverPatterns[patterns[i % patterns.length]];
+              const isPlaying = playingDrop === drop.id;
+              const isHovered = hoveredDrop === drop.id;
+
+              return (
+                <motion.div
+                  key={drop.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: isReady ? 1 : 0, y: isReady ? 0 : 30 }}
+                  transition={{ delay: 0.4 + i * 0.1, duration: 0.6 }}
+                  className="group"
                   onMouseEnter={() => setHoveredDrop(drop.id)}
                   onMouseLeave={() => setHoveredDrop(null)}
-                  className={`group block border border-[#1A1A1A]/10 transition-all duration-500 ${
-                    hoveredDrop === drop.id ? 'border-[#8B5CF6]/30 bg-[#8B5CF6]/[0.02]' : ''
-                  }`}
                 >
-                  <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-6">
-                    {/* Abstract waveform visual */}
-                    <div className="w-20 h-20 border border-[#1A1A1A]/10 flex items-center justify-center shrink-0 relative overflow-hidden">
-                      <svg viewBox="0 0 60 60" className="w-full h-full">
-                        {/* ARCHÉ-inspired abstract waveform */}
-                        <motion.circle
-                          cx="30"
-                          cy="30"
-                          r="20"
-                          fill="none"
-                          stroke={hoveredDrop === drop.id ? '#8B5CF6' : '#1A1A1A'}
-                          strokeWidth="0.5"
-                          strokeOpacity={hoveredDrop === drop.id ? 0.4 : 0.1}
-                          animate={hoveredDrop === drop.id ? { r: [20, 22, 20] } : {}}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        />
-                        <motion.path
-                          d="M 15 30 Q 22 20, 30 30 T 45 30"
-                          fill="none"
-                          stroke={hoveredDrop === drop.id ? '#8B5CF6' : '#1A1A1A'}
-                          strokeWidth="0.5"
-                          strokeOpacity={hoveredDrop === drop.id ? 0.6 : 0.2}
-                          animate={hoveredDrop === drop.id ? {
-                            d: ["M 15 30 Q 22 20, 30 30 T 45 30", "M 15 30 Q 22 40, 30 30 T 45 30", "M 15 30 Q 22 20, 30 30 T 45 30"]
-                          } : {}}
-                          transition={{ duration: 3, repeat: Infinity }}
-                        />
-                        <circle
-                          cx="30"
-                          cy="30"
-                          r="2"
-                          fill={hoveredDrop === drop.id ? '#8B5CF6' : '#1A1A1A'}
-                          fillOpacity={hoveredDrop === drop.id ? 0.6 : 0.2}
-                        />
-                      </svg>
+                  {/* Album Card */}
+                  <div className={`relative border transition-all duration-500 ${
+                    isHovered || isPlaying
+                      ? 'border-[#8B5CF6]/40 bg-[#8B5CF6]/[0.02]'
+                      : 'border-[#1A1A1A]/10'
+                  }`}>
+                    {/* Abstract Cover */}
+                    <div className="aspect-square relative overflow-hidden bg-[#FAF8F2]">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <PatternComponent isPlaying={isPlaying} />
+                      </div>
+
+                      {/* Play Button Overlay */}
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: isHovered || isPlaying ? 1 : 0 }}
+                        className="absolute inset-0 flex items-center justify-center bg-[#FAF8F2]/60 backdrop-blur-sm"
+                      >
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={(e) => togglePlay(drop.id, e)}
+                          className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 ${
+                            isPlaying
+                              ? 'bg-[#8B5CF6] text-white'
+                              : 'border-2 border-[#8B5CF6] text-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white'
+                          }`}
+                          style={{
+                            boxShadow: isPlaying ? '0 0 30px rgba(139, 92, 246, 0.4)' : 'none'
+                          }}
+                        >
+                          {isPlaying ? (
+                            <Pause className="w-6 h-6" fill="currentColor" />
+                          ) : (
+                            <Play className="w-6 h-6 ml-1" fill="currentColor" />
+                          )}
+                        </motion.button>
+                      </motion.div>
+
+                      {/* Playing indicator */}
+                      {isPlaying && (
+                        <motion.div
+                          className="absolute bottom-4 left-4 right-4"
+                        >
+                          <div className="flex items-end gap-1 h-4">
+                            {[...Array(12)].map((_, j) => (
+                              <motion.div
+                                key={j}
+                                className="flex-1 bg-[#8B5CF6]"
+                                animate={{
+                                  height: ['30%', '100%', '50%', '80%', '30%']
+                                }}
+                                transition={{
+                                  duration: 0.8,
+                                  repeat: Infinity,
+                                  delay: j * 0.05,
+                                  ease: 'easeInOut'
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {/* Exclusive Badge */}
+                      {drop.exclusive && (
+                        <div className="absolute top-4 right-4">
+                          <span
+                            className="text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-[#8B5CF6]/30"
+                            style={{
+                              color: '#8B5CF6',
+                              background: 'rgba(139, 92, 246, 0.08)'
+                            }}
+                          >
+                            Exclusive
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Info */}
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-3">
-                        <h3 className={`font-serif text-xl transition-colors duration-300 ${
-                          hoveredDrop === drop.id ? 'text-[#8B5CF6]' : ''
+                    <div className="p-5 space-y-3">
+                      <div>
+                        <h3 className={`font-serif text-lg transition-colors duration-300 ${
+                          isHovered || isPlaying ? 'text-[#8B5CF6]' : ''
                         }`}>
                           {drop.title}
                         </h3>
-                        {drop.exclusive && (
-                          <span className="text-[10px] tracking-[0.1em] uppercase" style={{ color: '#8B5CF6' }}>
-                            Exclusive
-                          </span>
-                        )}
+                        <p className="text-sm text-[#1A1A1A]/40 mt-1">{drop.artist}</p>
                       </div>
-                      <p className="text-sm text-[#1A1A1A]/40">{drop.artist}</p>
-                      <p className="text-xs text-[#1A1A1A]/30 line-clamp-1 md:line-clamp-none">
+
+                      <p className="text-xs text-[#1A1A1A]/30 line-clamp-2">
                         {drop.description}
                       </p>
-                    </div>
 
-                    {/* Meta */}
-                    <div className="flex md:flex-col items-center md:items-end gap-4 md:gap-1 shrink-0">
-                      <span className="text-xs text-[#1A1A1A]/30">{drop.trackCount} signals</span>
-                      <span className="text-xs text-[#1A1A1A]/30">{drop.duration}</span>
-                    </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-[#1A1A1A]/5">
+                        <span className="text-[10px] text-[#1A1A1A]/30 tracking-wide">
+                          {drop.trackCount} signals · {drop.duration}
+                        </span>
 
-                    {/* Arrow */}
-                    <div className={`hidden md:flex w-10 h-10 border items-center justify-center shrink-0 transition-all duration-300 ${
-                      hoveredDrop === drop.id ? 'border-[#8B5CF6]/40' : 'border-[#1A1A1A]/10'
-                    }`}>
-                      <svg
-                        className={`w-4 h-4 transition-colors ${
-                          hoveredDrop === drop.id ? 'text-[#8B5CF6]' : 'text-[#1A1A1A]/30'
-                        }`}
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5l7 7-7 7" />
-                      </svg>
+                        <Link
+                          to={`/drop/${drop.id}`}
+                          className="inline-flex items-center gap-2 px-4 py-2 text-xs tracking-[0.1em] uppercase transition-all duration-300 border border-[#8B5CF6]/30 hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6]"
+                          style={{ color: '#8B5CF6' }}
+                        >
+                          <ShoppingBag className="w-3 h-3" />
+                          Access
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </Link>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         </motion.section>
 
