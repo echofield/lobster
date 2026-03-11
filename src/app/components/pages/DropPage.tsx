@@ -1,246 +1,316 @@
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate, Link } from 'react-router';
 import { motion } from 'motion/react';
-import { PageWrapper } from '../layout';
 import { getDropById } from '@/data/cards';
-import { ArrowLeft, Play, Pause, Download } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft, Download } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { AudioPlayer, MiniPlayer } from '../ui/AudioPlayer';
 
 export function DropPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const drop = getDropById(id || '');
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({
+        x: e.clientX / window.innerWidth,
+        y: e.clientY / window.innerHeight
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   if (!drop) {
     return (
-      <PageWrapper centered fullHeight>
+      <div className="min-h-screen bg-[#0A0A0A] text-[#FAF8F2] flex items-center justify-center">
         <div className="text-center space-y-4">
-          <h1 className="text-2xl font-serif">Drop not found</h1>
+          <h1 className="text-2xl font-serif">Signal not found</h1>
           <button
             onClick={() => navigate('/access')}
-            className="small-caps hover:opacity-100 opacity-60 transition-opacity"
+            className="text-xs tracking-[0.15em] uppercase opacity-60 hover:opacity-100"
           >
             Return to Archive
           </button>
         </div>
-      </PageWrapper>
+      </div>
     );
   }
 
-  const togglePlay = (sampleId: string) => {
-    setPlayingId(playingId === sampleId ? null : sampleId);
-  };
+  const currentTrack = drop.samples?.find(s => s.id === playingId);
 
   return (
-    <PageWrapper className="max-w-4xl mx-auto">
-      {/* Back Button */}
-      <motion.button
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.4 }}
-        onClick={() => navigate(-1)}
-        className="inline-flex items-center gap-2 small-caps hover:opacity-100 opacity-60 transition-opacity mb-12"
+    <div className="min-h-screen bg-[#0A0A0A] text-[#FAF8F2] relative overflow-hidden">
+      {/* Nav */}
+      <motion.nav
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.8 }}
+        className="fixed top-0 left-0 right-0 z-50 px-8 py-6 flex justify-between items-center"
       >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Archive
-      </motion.button>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
-        {/* Left: Cover & Meta */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.8 }}
-          className="lg:col-span-1 space-y-6"
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-3 text-xs tracking-[0.15em] uppercase opacity-60 hover:opacity-100 transition-opacity"
         >
-          {/* Cover */}
-          <div className="aspect-square border border-border bg-paper-warm relative overflow-hidden">
-            {/* Abstract Pattern */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative w-3/4 h-3/4">
-                {/* Waveform Representation */}
-                <svg viewBox="0 0 100 60" className="w-full h-full opacity-20">
-                  <path
-                    d="M 0 30 Q 10 10, 20 30 T 40 30 T 60 30 T 80 30 T 100 30"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="0.5"
-                  />
-                  <path
-                    d="M 0 35 Q 15 50, 30 35 T 60 35 T 90 35 T 100 35"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="0.5"
-                  />
-                </svg>
-              </div>
-            </div>
-            {/* Title Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-paper-warm">
-              <span className="font-serif text-lg">{drop.title}</span>
-            </div>
+          <ArrowLeft className="w-4 h-4" />
+          Return
+        </button>
+        <div className="flex items-center gap-4">
+          <span className="text-xs tracking-[0.15em] uppercase opacity-40">MERIDIEN</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs opacity-60">FR</span>
+            <span className="opacity-30">/</span>
+            <span className="text-xs opacity-40">EN</span>
           </div>
+        </div>
+      </motion.nav>
 
-          {/* Meta */}
-          <div className="space-y-4">
-            <div className="flex justify-between py-3 border-b border-border">
-              <span className="small-caps">Type</span>
-              <span className="text-sm capitalize">{drop.type}</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-border">
-              <span className="small-caps">Tracks</span>
-              <span className="text-sm">{drop.trackCount}</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-border">
-              <span className="small-caps">Duration</span>
-              <span className="text-sm">{drop.duration}</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-border">
-              <span className="small-caps">Release</span>
-              <span className="text-sm">{drop.releaseDate}</span>
-            </div>
+      {/* Left Side - Mode Indicator */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.5, duration: 0.8 }}
+        className="fixed left-8 top-24 z-40"
+      >
+        <div className="flex flex-col gap-4">
+          {/* Icon */}
+          <div className="w-14 h-14 border border-[#A38767]/40 flex items-center justify-center">
+            <div className="w-6 h-6 border border-[#A38767] rotate-45" />
           </div>
+          {/* Mode */}
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-[#A38767]" />
+            <span className="text-xs text-[#A38767]">Quiet</span>
+          </div>
+        </div>
+      </motion.div>
 
-          {/* Download All */}
-          <button className="w-full py-4 bg-primary text-primary-foreground text-sm font-medium tracking-wide hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
-            <Download className="w-4 h-4" />
-            Download All
-          </button>
-        </motion.div>
+      {/* Main Content */}
+      <div className="pt-32 pb-20 px-8 md:px-16 lg:px-24">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
 
-        {/* Right: Description & Samples */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
-          className="lg:col-span-2 space-y-10"
-        >
-          {/* Header */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <span className="small-caps">{drop.artist}</span>
-              {drop.exclusive && (
-                <>
-                  <span className="opacity-30">|</span>
-                  <span className="text-[10px] text-lobster-gold tracking-wider uppercase">
-                    Member Exclusive
-                  </span>
-                </>
-              )}
+          {/* Left Column - Info */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="lg:col-span-4 space-y-8"
+          >
+            <div>
+              <span className="text-[10px] tracking-[0.2em] uppercase text-[#A38767]">
+                {drop.exclusive ? 'EXCLUSIVE DROP' : 'ARCHIVE'}
+              </span>
+              <h1 className="mt-3 text-3xl md:text-4xl font-serif">{drop.title}</h1>
+              <p className="mt-2 text-sm text-[#FAF8F2]/40">{drop.artist}</p>
             </div>
-            <h1 className="text-3xl font-serif">{drop.title}</h1>
-            <p className="text-muted-foreground leading-relaxed">
+
+            <p className="text-sm text-[#FAF8F2]/60 leading-relaxed">
               {drop.description}
             </p>
-          </div>
 
-          {/* Sample List - Instrument-inspired */}
-          <div className="space-y-4">
-            <span className="small-caps">Samples</span>
+            {/* Specs */}
+            <div className="space-y-4 pt-6 border-t border-[#FAF8F2]/10">
+              <div className="flex justify-between">
+                <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">TRACKS</span>
+                <span className="text-sm">{drop.trackCount}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">DURATION</span>
+                <span className="text-sm">{drop.duration}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">RELEASE</span>
+                <span className="text-sm">{drop.releaseDate}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">TYPE</span>
+                <span className="text-sm uppercase">{drop.type}</span>
+              </div>
+            </div>
 
-            <div className="border border-border">
-              {/* Header Row */}
-              <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-paper-warm border-b border-border text-xs text-muted-foreground">
-                <div className="col-span-1">#</div>
-                <div className="col-span-5">Name</div>
-                <div className="col-span-2 text-center">BPM</div>
-                <div className="col-span-2 text-center">Key</div>
-                <div className="col-span-2 text-right">Duration</div>
+            {/* Download Button */}
+            <button className="w-full py-4 border border-[#FAF8F2]/30 text-xs tracking-[0.2em] uppercase flex items-center justify-center gap-3 hover:bg-[#FAF8F2] hover:text-[#0A0A0A] transition-all duration-300">
+              <Download className="w-4 h-4" />
+              Download All
+            </button>
+          </motion.div>
+
+          {/* Right Column - Instrument Interface */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="lg:col-span-8"
+          >
+            {/* Waveform Instrument Panel */}
+            <div className="relative border border-[#FAF8F2]/10 bg-[#0A0A0A]">
+              {/* Vertical Labels - Right Side */}
+              <div className="absolute -right-16 top-0 bottom-0 flex flex-col justify-between py-4 text-[10px] tracking-[0.1em] text-[#FAF8F2]/30">
+                <span className="rotate-90 origin-left translate-x-4">DISPERSION</span>
+                <span className="rotate-90 origin-left translate-x-4">RESONANCE</span>
+                <span className="rotate-90 origin-left translate-x-4">HARMONICS</span>
               </div>
 
-              {/* Sample Rows */}
-              {drop.samples?.map((sample, i) => (
-                <motion.div
-                  key={sample.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 + i * 0.05, duration: 0.4 }}
-                  className="group grid grid-cols-12 gap-4 px-4 py-4 border-b border-border last:border-b-0 hover:bg-paper-warm/50 transition-colors cursor-pointer"
-                  onClick={() => togglePlay(sample.id)}
-                >
-                  {/* Play Button / Number */}
-                  <div className="col-span-1 flex items-center">
-                    <button className="w-6 h-6 flex items-center justify-center">
-                      {playingId === sample.id ? (
-                        <Pause className="w-3 h-3 text-lobster-gold" />
-                      ) : (
-                        <span className="text-sm text-muted-foreground group-hover:hidden">
-                          {i + 1}
-                        </span>
-                      )}
-                      {playingId !== sample.id && (
-                        <Play className="w-3 h-3 text-muted-foreground hidden group-hover:block" />
-                      )}
-                    </button>
+              {/* Main Visualization Area */}
+              <div className="p-8">
+                {/* Current Playing Info */}
+                {currentTrack && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mb-6 text-center"
+                  >
+                    <span className="text-[10px] tracking-[0.2em] uppercase text-[#FAF8F2]/40">
+                      NOW PLAYING
+                    </span>
+                    <h3 className="mt-2 font-serif text-xl">{currentTrack.name}</h3>
+                    <p className="text-xs text-[#FAF8F2]/30 mt-1">
+                      {currentTrack.bpm && `${currentTrack.bpm} BPM`}
+                      {currentTrack.key && ` · ${currentTrack.key}`}
+                    </p>
+                  </motion.div>
+                )}
+
+                {/* Waveform Display */}
+                <div className="relative h-64 border border-[#FAF8F2]/10">
+                  {/* Grid */}
+                  <div className="absolute inset-0">
+                    {[...Array(8)].map((_, i) => (
+                      <div
+                        key={`h-${i}`}
+                        className="absolute left-0 right-0 h-px bg-[#FAF8F2]/5"
+                        style={{ top: `${(i + 1) * 12.5}%` }}
+                      />
+                    ))}
+                    {[...Array(12)].map((_, i) => (
+                      <div
+                        key={`v-${i}`}
+                        className="absolute top-0 bottom-0 w-px bg-[#FAF8F2]/5"
+                        style={{ left: `${(i + 1) * 8.33}%` }}
+                      />
+                    ))}
                   </div>
 
-                  {/* Name */}
-                  <div className="col-span-5 flex items-center">
-                    <span className={`text-sm ${playingId === sample.id ? 'text-lobster-gold' : ''}`}>
-                      {sample.name}
-                    </span>
-                  </div>
+                  {/* Oscillation Wave */}
+                  <svg
+                    viewBox="0 0 400 200"
+                    className="absolute inset-0 w-full h-full"
+                    preserveAspectRatio="none"
+                  >
+                    <motion.path
+                      d="M 0 100 Q 50 40, 100 100 T 200 100 T 300 100 T 400 100"
+                      fill="none"
+                      stroke="#A38767"
+                      strokeWidth="1"
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      animate={{
+                        pathLength: 1,
+                        opacity: playingId ? 0.8 : 0.3,
+                        d: playingId
+                          ? [
+                              "M 0 100 Q 50 40, 100 100 T 200 100 T 300 100 T 400 100",
+                              "M 0 100 Q 50 160, 100 100 T 200 100 T 300 100 T 400 100",
+                              "M 0 100 Q 50 40, 100 100 T 200 100 T 300 100 T 400 100"
+                            ]
+                          : "M 0 100 Q 50 70, 100 100 T 200 100 T 300 100 T 400 100"
+                      }}
+                      transition={{
+                        pathLength: { duration: 1 },
+                        d: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                      }}
+                    />
+                    <motion.path
+                      d="M 0 100 Q 50 130, 100 100 T 200 100 T 300 100 T 400 100"
+                      fill="none"
+                      stroke="#FAF8F2"
+                      strokeWidth="0.5"
+                      strokeOpacity="0.2"
+                      animate={{
+                        d: playingId
+                          ? [
+                              "M 0 100 Q 50 130, 100 100 T 200 100 T 300 100 T 400 100",
+                              "M 0 100 Q 50 70, 100 100 T 200 100 T 300 100 T 400 100",
+                              "M 0 100 Q 50 130, 100 100 T 200 100 T 300 100 T 400 100"
+                            ]
+                          : "M 0 100 Q 50 110, 100 100 T 200 100 T 300 100 T 400 100"
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                    />
+                  </svg>
 
-                  {/* BPM */}
-                  <div className="col-span-2 flex items-center justify-center">
-                    <span className="text-sm text-muted-foreground">
-                      {sample.bpm || '-'}
-                    </span>
+                  {/* Center Label */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+                    <div className="px-4 py-2 border border-[#FAF8F2]/20 bg-[#0A0A0A]">
+                      <span className="text-xs tracking-[0.15em] uppercase">
+                        {playingId ? 'ACTIVE' : 'IDLE'}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-[10px] text-[#FAF8F2]/40">
+                      {playingId ? 'SIGNAL DETECTED' : 'SELECT A TRACK'}
+                    </p>
                   </div>
+                </div>
 
-                  {/* Key */}
-                  <div className="col-span-2 flex items-center justify-center">
-                    <span className="text-sm text-muted-foreground">
-                      {sample.key || '-'}
-                    </span>
+                {/* Timeline Scrubber */}
+                <div className="mt-6 relative">
+                  <div className="flex items-center gap-2">
+                    <motion.div
+                      animate={{ scale: playingId ? [1, 1.3, 1] : 1 }}
+                      transition={{ duration: 0.5, repeat: playingId ? Infinity : 0 }}
+                      className={`w-2 h-2 rounded-full ${playingId ? 'bg-[#A38767]' : 'bg-[#FAF8F2]/20'}`}
+                    />
+                    <div className="flex-1 h-px bg-[#FAF8F2]/10 relative">
+                      <div className="absolute inset-y-0 left-0 bg-[#A38767]/60" style={{ width: playingId ? '45%' : '0%' }} />
+                      {/* Ticks */}
+                      {[...Array(20)].map((_, i) => (
+                        <div
+                          key={i}
+                          className={`absolute top-1/2 -translate-y-1/2 w-px ${
+                            i % 5 === 0 ? 'h-2 bg-[#FAF8F2]/20' : 'h-1 bg-[#FAF8F2]/10'
+                          }`}
+                          style={{ left: `${(i + 1) * 5}%` }}
+                        />
+                      ))}
+                    </div>
                   </div>
-
-                  {/* Duration */}
-                  <div className="col-span-2 flex items-center justify-end">
-                    <span className="text-sm text-muted-foreground">
-                      {sample.duration}
-                    </span>
+                  <div className="flex justify-between mt-2 text-[10px] text-[#FAF8F2]/30">
+                    <span>0</span>
+                    <span>1</span>
                   </div>
-                </motion.div>
-              ))}
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Waveform Visualization - Instrument Aesthetic */}
-          {playingId && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="p-6 border border-lobster-gold/30 bg-paper-warm"
-            >
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-2 h-2 rounded-full bg-lobster-gold animate-pulse" />
-                <span className="text-sm">
-                  Now playing: {drop.samples?.find(s => s.id === playingId)?.name}
+            {/* Track List */}
+            <div className="mt-8 border border-[#FAF8F2]/10">
+              <div className="px-4 py-3 border-b border-[#FAF8F2]/10">
+                <span className="text-[10px] tracking-[0.15em] uppercase text-[#FAF8F2]/40">
+                  TRACKS · {drop.samples?.length || 0}
                 </span>
               </div>
-              {/* Simplified Waveform */}
-              <div className="h-16 flex items-center justify-center gap-0.5">
-                {[...Array(60)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ height: 4 }}
-                    animate={{ height: Math.random() * 40 + 8 }}
-                    transition={{
-                      repeat: Infinity,
-                      repeatType: 'reverse',
-                      duration: 0.3 + Math.random() * 0.5,
-                      delay: i * 0.02
-                    }}
-                    className="w-1 bg-lobster-gold/40 rounded-full"
+              <div className="max-h-80 overflow-y-auto">
+                {drop.samples?.map((sample, i) => (
+                  <MiniPlayer
+                    key={sample.id}
+                    index={i}
+                    title={sample.name}
+                    duration={sample.duration}
+                    isPlaying={playingId === sample.id}
+                    onToggle={() => setPlayingId(playingId === sample.id ? null : sample.id)}
                   />
                 ))}
               </div>
-            </motion.div>
-          )}
-        </motion.div>
+            </div>
+          </motion.div>
+        </div>
       </div>
-    </PageWrapper>
+
+      {/* Bottom Right Diamond */}
+      <div className="fixed bottom-8 right-8">
+        <div className="w-3 h-3 border border-[#FAF8F2]/20 rotate-45" />
+      </div>
+    </div>
   );
 }
