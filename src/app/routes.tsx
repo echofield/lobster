@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Outlet } from "react-router";
 import {
   HomePage,
   CardPage,
@@ -9,23 +9,28 @@ import {
 } from "./components/pages";
 import { Toaster } from "./components/ui/sonner";
 
-// Simple wrapper that just adds the Toaster
-function AppWrapper({ children }: { children: React.ReactNode }) {
+// Root layout with Toaster
+function RootLayout() {
   return (
     <>
-      {children}
+      <Outlet />
       <Toaster />
     </>
   );
 }
 
 export const router = createBrowserRouter([
-  // All pages handle their own layout
-  { path: "/", element: <AppWrapper><HomePage /></AppWrapper> },
-  { path: "/card", element: <AppWrapper><CardPage /></AppWrapper> },
-  { path: "/about", element: <AppWrapper><AboutPage /></AppWrapper> },
-  { path: "/access", element: <AppWrapper><MemberAccessPage /></AppWrapper> },
-  { path: "/access/:token", element: <AppWrapper><MemberAccessPage /></AppWrapper> },
-  { path: "/drop/:id", element: <AppWrapper><DropPage /></AppWrapper> },
-  { path: "/thank-you", element: <AppWrapper><ThankYouPage /></AppWrapper> },
+  {
+    path: "/",
+    Component: RootLayout,
+    children: [
+      { index: true, Component: HomePage },
+      { path: "card", Component: CardPage },
+      { path: "about", Component: AboutPage },
+      { path: "access", Component: MemberAccessPage },
+      { path: "access/:token", Component: MemberAccessPage },
+      { path: "drop/:id", Component: DropPage },
+      { path: "thank-you", Component: ThankYouPage },
+    ],
+  },
 ]);
