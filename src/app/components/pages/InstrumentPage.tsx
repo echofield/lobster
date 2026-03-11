@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ArrowLeft, Upload } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { audioEngine } from '@/app/audio/AudioEngine';
 
 interface Pad {
@@ -37,6 +37,7 @@ export function InstrumentPage() {
     reverb: { decay: 2.5, mix: 0 },
     master: { volume: 80 }
   });
+  const [meterLevel, setMeterLevel] = useState(-60);
   const [waveformData, setWaveformData] = useState<Float32Array>(new Float32Array(256));
   const animationRef = useRef<number>();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -64,17 +65,19 @@ export function InstrumentPage() {
     audioEngine.setMasterVolume(effects.master.volume / 100);
   }, [initialized, effects]);
 
-  // Waveform animation
+  // Waveform & meter animation
   useEffect(() => {
     if (!initialized) return;
 
-    const updateWaveform = () => {
+    const updateVisuals = () => {
       const data = audioEngine.getWaveform();
       setWaveformData(data);
-      animationRef.current = requestAnimationFrame(updateWaveform);
+      const level = audioEngine.getMeterLevel();
+      setMeterLevel(level);
+      animationRef.current = requestAnimationFrame(updateVisuals);
     };
 
-    animationRef.current = requestAnimationFrame(updateWaveform);
+    animationRef.current = requestAnimationFrame(updateVisuals);
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
@@ -164,18 +167,11 @@ export function InstrumentPage() {
     }));
   };
 
+  // Convert dB to percentage for meter
+  const meterPercent = Math.max(0, Math.min(100, (meterLevel + 60) * 1.67));
+
   return (
     <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] relative overflow-hidden">
-      {/* Ambient Background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div
-          className="absolute top-1/4 left-1/4 w-[60vw] h-[60vw] rounded-full opacity-15 blur-[120px]"
-          style={{
-            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%)'
-          }}
-        />
-      </div>
-
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -205,271 +201,439 @@ export function InstrumentPage() {
         </div>
       </motion.nav>
 
-      {/* Main Content */}
-      <div className="pt-24 pb-12 px-8 md:px-16 max-w-6xl mx-auto">
-        {/* Header */}
+      {/* Main Instrument Chassis */}
+      <div className="pt-20 pb-8 px-4 md:px-8 max-w-5xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-12"
+          className="relative"
         >
-          <span className="text-[10px] tracking-[0.2em] uppercase text-[#1A1A1A]/40">Sound Laboratory</span>
-          <h1 className="text-3xl md:text-4xl font-serif mt-2">Lobster Sampler</h1>
-          <p className="text-sm text-[#1A1A1A]/40 mt-3">
-            {initialized ? 'Drop samples onto pads. Play with keyboard or click.' : 'Click to initialize audio'}
-          </p>
-        </motion.div>
+          {/* Main Chassis */}
+          <div
+            className="relative border-2 border-[#1A1A1A]/20 bg-gradient-to-b from-[#F5F3ED] to-[#EBE8E0]"
+            style={{
+              boxShadow: '0 8px 40px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(0,0,0,0.05)'
+            }}
+          >
+            {/* Top Panel - Brand & Status */}
+            <div className="border-b-2 border-[#1A1A1A]/10 px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <svg width="20" height="20" viewBox="0 0 20 20" className="text-[#8B5CF6]">
+                    <rect x="4" y="4" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                    <rect x="7" y="7" width="6" height="6" fill="currentColor" opacity="0.3" />
+                  </svg>
+                  <span className="text-sm font-medium tracking-[0.15em] uppercase">Lobster</span>
+                </div>
+                <span className="text-[10px] tracking-[0.1em] uppercase text-[#1A1A1A]/40">Sampler MK-1</span>
+              </div>
 
-        {/* Waveform Visualization - ARCHE style */}
-        <motion.div
-          initial={{ opacity: 0, scaleX: 0.8 }}
-          animate={{ opacity: 1, scaleX: 1 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="relative h-24 mb-12 border-y border-[#1A1A1A]/10"
-        >
-          <svg viewBox="0 0 256 96" className="w-full h-full" preserveAspectRatio="none">
-            {/* Center line */}
-            <line x1="0" y1="48" x2="256" y2="48" stroke="#8B5CF6" strokeWidth="0.5" strokeOpacity="0.2" />
-
-            {/* Waveform path */}
-            <motion.path
-              d={`M 0 48 ${Array.from(waveformData).map((v, i) =>
-                `L ${i} ${48 - v * 40}`
-              ).join(' ')}`}
-              fill="none"
-              stroke="url(#instrumentGradient)"
-              strokeWidth="1"
-              strokeLinecap="round"
-            />
-
-            {/* Measurement marks */}
-            {[0, 64, 128, 192, 256].map((x, i) => (
-              <g key={i}>
-                <line x1={x} y1="0" x2={x} y2="4" stroke="#8B5CF6" strokeWidth="0.5" strokeOpacity="0.3" />
-                <line x1={x} y1="92" x2={x} y2="96" stroke="#8B5CF6" strokeWidth="0.5" strokeOpacity="0.3" />
-              </g>
-            ))}
-
-            <defs>
-              <linearGradient id="instrumentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.3" />
-                <stop offset="50%" stopColor="#8B5CF6" stopOpacity="0.9" />
-                <stop offset="100%" stopColor="#A78BFA" stopOpacity="0.3" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </motion.div>
-
-        {/* Pad Grid - 2x4 geometric squares */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.8 }}
-          className="grid grid-cols-4 gap-4 mb-12 max-w-2xl mx-auto"
-        >
-          {pads.map((pad, index) => (
-            <motion.button
-              key={pad.id}
-              onClick={() => handlePadClick(pad.id)}
-              whileTap={{ scale: 0.95 }}
-              className="relative aspect-square group"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5 + index * 0.05 }}
-            >
-              {/* Outer frame */}
-              <div
-                className={`absolute inset-0 transition-all duration-200 ${
-                  activePad === pad.id
-                    ? 'border-2 border-[#8B5CF6]'
-                    : pad.loaded
-                    ? 'border border-[#1A1A1A]/20 hover:border-[#8B5CF6]/50'
-                    : 'border border-dashed border-[#1A1A1A]/15 hover:border-[#8B5CF6]/30'
-                }`}
-                style={{
-                  boxShadow: activePad === pad.id
-                    ? '0 0 30px rgba(139, 92, 246, 0.4), inset 0 0 20px rgba(139, 92, 246, 0.1)'
-                    : 'none',
-                  background: activePad === pad.id
-                    ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(167, 139, 250, 0.08) 100%)'
-                    : pad.loaded
-                    ? 'rgba(139, 92, 246, 0.03)'
-                    : 'transparent'
-                }}
-              />
-
-              {/* Inner content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                {pad.loading ? (
+              {/* Status LEDs */}
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <span className="text-[8px] tracking-wider uppercase text-[#1A1A1A]/40">PWR</span>
                   <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    className="w-4 h-4 border border-[#8B5CF6] border-t-transparent rounded-full"
+                    animate={{ opacity: initialized ? [0.6, 1, 0.6] : 0.2 }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    className="w-2 h-2 rounded-full"
+                    style={{
+                      background: initialized ? '#8B5CF6' : '#1A1A1A',
+                      boxShadow: initialized ? '0 0 8px rgba(139, 92, 246, 0.8)' : 'none'
+                    }}
                   />
-                ) : pad.loaded ? (
-                  <>
-                    {/* Mini waveform */}
-                    {pad.waveformData && (
-                      <div className="flex items-center gap-px h-6 px-3 opacity-40">
-                        {pad.waveformData.slice(0, 16).map((v, i) => (
-                          <div
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[8px] tracking-wider uppercase text-[#1A1A1A]/40">SIG</span>
+                  <motion.div
+                    animate={{
+                      opacity: meterLevel > -50 ? [0.6, 1, 0.6] : 0.2,
+                      background: meterLevel > -10 ? '#EF4444' : meterLevel > -30 ? '#F59E0B' : '#22C55E'
+                    }}
+                    transition={{ duration: 0.1 }}
+                    className="w-2 h-2 rounded-full"
+                    style={{
+                      boxShadow: meterLevel > -50 ? '0 0 6px currentColor' : 'none'
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Oscilloscope / Waveform Section */}
+            <div className="border-b-2 border-[#1A1A1A]/10 p-6">
+              <div
+                className="relative h-28 bg-[#0A0A0A] border border-[#1A1A1A]/30 overflow-hidden"
+                style={{ boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.3)' }}
+              >
+                {/* Grid */}
+                <div className="absolute inset-0 opacity-20">
+                  {Array.from({ length: 9 }).map((_, i) => (
+                    <div key={`v-${i}`} className="absolute top-0 bottom-0 w-px bg-[#8B5CF6]" style={{ left: `${(i + 1) * 10}%` }} />
+                  ))}
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={`h-${i}`} className="absolute left-0 right-0 h-px bg-[#8B5CF6]" style={{ top: `${(i + 1) * 16.67}%` }} />
+                  ))}
+                </div>
+
+                {/* Center line */}
+                <div className="absolute top-1/2 left-0 right-0 h-px bg-[#8B5CF6]/40" />
+
+                {/* Waveform */}
+                <svg viewBox="0 0 256 112" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+                  <motion.path
+                    d={`M 0 56 ${Array.from(waveformData).map((v, i) =>
+                      `L ${i} ${56 - v * 48}`
+                    ).join(' ')}`}
+                    fill="none"
+                    stroke="#8B5CF6"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    style={{ filter: 'drop-shadow(0 0 4px rgba(139, 92, 246, 0.8))' }}
+                  />
+                </svg>
+
+                {/* Scanline effect */}
+                <motion.div
+                  animate={{ top: ['0%', '100%', '0%'] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                  className="absolute left-0 right-0 h-px bg-[#8B5CF6]/20"
+                />
+
+                {/* Corner brackets */}
+                <div className="absolute top-2 left-2 w-3 h-3 border-l border-t border-[#8B5CF6]/50" />
+                <div className="absolute top-2 right-2 w-3 h-3 border-r border-t border-[#8B5CF6]/50" />
+                <div className="absolute bottom-2 left-2 w-3 h-3 border-l border-b border-[#8B5CF6]/50" />
+                <div className="absolute bottom-2 right-2 w-3 h-3 border-r border-b border-[#8B5CF6]/50" />
+              </div>
+            </div>
+
+            {/* Pads Section */}
+            <div className="border-b-2 border-[#1A1A1A]/10 p-6">
+              <div className="flex items-center gap-3 mb-5">
+                <span className="text-[10px] tracking-[0.2em] uppercase text-[#1A1A1A]/50">Sample Pads</span>
+                <div className="flex-1 h-px bg-[#1A1A1A]/10" />
+                <span className="text-[9px] tracking-wider uppercase text-[#1A1A1A]/30">
+                  {pads.filter(p => p.loaded).length}/8 Loaded
+                </span>
+              </div>
+
+              {/* 2x4 Pad Grid */}
+              <div className="grid grid-cols-4 gap-3 max-w-xl mx-auto">
+                {pads.map((pad, index) => (
+                  <motion.button
+                    key={pad.id}
+                    onClick={() => handlePadClick(pad.id)}
+                    whileTap={{ scale: 0.95 }}
+                    className="relative aspect-square group"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3 + index * 0.04 }}
+                  >
+                    {/* Pad base - hardware button style */}
+                    <div
+                      className={`absolute inset-0 transition-all duration-100 ${
+                        activePad === pad.id ? 'translate-y-0.5' : ''
+                      }`}
+                      style={{
+                        background: activePad === pad.id
+                          ? 'linear-gradient(180deg, #8B5CF6 0%, #7C3AED 100%)'
+                          : pad.loaded
+                          ? 'linear-gradient(180deg, #3A3A3A 0%, #2A2A2A 100%)'
+                          : 'linear-gradient(180deg, #4A4A4A 0%, #3A3A3A 100%)',
+                        boxShadow: activePad === pad.id
+                          ? 'inset 0 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(139, 92, 246, 0.5)'
+                          : 'inset 0 -2px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 8px rgba(0,0,0,0.2)',
+                        border: '1px solid rgba(0,0,0,0.3)'
+                      }}
+                    >
+                      {/* Inner content */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        {pad.loading ? (
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                            className="w-4 h-4 border-2 border-[#8B5CF6] border-t-transparent rounded-full"
+                          />
+                        ) : pad.loaded ? (
+                          <>
+                            {/* Waveform indicator */}
+                            {pad.waveformData && (
+                              <div className="flex items-center gap-0.5 h-5 px-2">
+                                {pad.waveformData.slice(0, 12).map((v, i) => (
+                                  <motion.div
+                                    key={i}
+                                    className="w-0.5 rounded-full"
+                                    style={{
+                                      height: `${v * 100}%`,
+                                      minHeight: 2,
+                                      background: activePad === pad.id ? 'white' : '#8B5CF6',
+                                      boxShadow: activePad === pad.id ? 'none' : '0 0 4px rgba(139, 92, 246, 0.5)'
+                                    }}
+                                    animate={activePad === pad.id ? { scaleY: [1, 1.3, 1] } : {}}
+                                    transition={{ duration: 0.15 }}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                            <span className={`text-[8px] tracking-wider mt-1 truncate max-w-full px-2 ${
+                              activePad === pad.id ? 'text-white' : 'text-white/60'
+                            }`}>
+                              {pad.label.toUpperCase()}
+                            </span>
+                          </>
+                        ) : (
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="w-6 h-6 border border-white/20 flex items-center justify-center">
+                              <span className="text-white/30 text-lg leading-none">+</span>
+                            </div>
+                            <span className="text-[7px] text-white/30 tracking-wider">EMPTY</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Key binding indicator */}
+                      <div className="absolute top-1.5 left-1.5 w-4 h-4 border border-white/20 flex items-center justify-center">
+                        <span className="text-[9px] font-medium text-white/50">
+                          {['1', '2', '3', '4', 'Q', 'W', 'E', 'R'][index]}
+                        </span>
+                      </div>
+
+                      {/* Active LED */}
+                      {pad.loaded && (
+                        <motion.div
+                          animate={activePad === pad.id ? { opacity: 1 } : { opacity: [0.3, 0.5, 0.3] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                          className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full"
+                          style={{
+                            background: activePad === pad.id ? '#fff' : '#8B5CF6',
+                            boxShadow: activePad === pad.id
+                              ? '0 0 8px rgba(255,255,255,0.8)'
+                              : '0 0 6px rgba(139, 92, 246, 0.6)'
+                          }}
+                        />
+                      )}
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+
+            {/* Signal Chain Section */}
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <span className="text-[10px] tracking-[0.2em] uppercase text-[#1A1A1A]/50">Signal Chain</span>
+                <div className="flex-1 h-px bg-[#1A1A1A]/10" />
+              </div>
+
+              {/* Effects Modules with Connections */}
+              <div className="relative">
+                {/* Connection line behind modules */}
+                <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-[#8B5CF6]/20 via-[#8B5CF6]/60 to-[#8B5CF6]/20" style={{ transform: 'translateY(-50%)' }} />
+
+                {/* Connection nodes */}
+                <div className="absolute top-1/2 left-0 w-3 h-3 border-2 border-[#8B5CF6] bg-[#FAF8F2] rounded-full" style={{ transform: 'translate(-50%, -50%)' }} />
+                <div className="absolute top-1/2 right-0 w-3 h-3 border-2 border-[#8B5CF6] bg-[#FAF8F2] rounded-full" style={{ transform: 'translate(50%, -50%)' }} />
+
+                <div className="grid grid-cols-4 gap-4">
+                  {/* Filter Module */}
+                  <div className="relative bg-[#F8F6F0] border border-[#1A1A1A]/15 p-4" style={{ boxShadow: 'inset 0 1px 0 white, 0 2px 4px rgba(0,0,0,0.05)' }}>
+                    {/* Input/Output nodes */}
+                    <div className="absolute left-0 top-1/2 w-2 h-2 bg-[#8B5CF6] rounded-full" style={{ transform: 'translate(-50%, -50%)' }} />
+                    <div className="absolute right-0 top-1/2 w-2 h-2 bg-[#8B5CF6] rounded-full" style={{ transform: 'translate(50%, -50%)' }} />
+
+                    <div className="text-center mb-3">
+                      <span className="text-[9px] font-semibold tracking-[0.15em] uppercase text-[#8B5CF6]">Filter</span>
+                    </div>
+
+                    {/* Frequency knob visual */}
+                    <div className="flex flex-col items-center mb-3">
+                      <div
+                        className="w-12 h-12 rounded-full border-2 border-[#1A1A1A]/20 bg-gradient-to-b from-[#FAFAFA] to-[#E5E5E5] relative"
+                        style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 white' }}
+                      >
+                        <motion.div
+                          className="absolute w-1 h-4 bg-[#8B5CF6] rounded-full left-1/2 top-1"
+                          style={{
+                            transformOrigin: 'center 20px',
+                            transform: `translateX(-50%) rotate(${(effects.filter.freq / 20000) * 270 - 135}deg)`
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[8px] tracking-wider uppercase text-[#1A1A1A]/40">Freq</span>
+                        <span className="text-[9px] font-medium text-[#1A1A1A]/70">{Math.round(effects.filter.freq)}Hz</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="20"
+                        max="20000"
+                        value={effects.filter.freq}
+                        onChange={(e) => updateEffect('filter', 'freq', Number(e.target.value))}
+                        className="w-full h-1.5 appearance-none bg-[#1A1A1A]/10 rounded-full cursor-pointer"
+                        style={{
+                          background: `linear-gradient(to right, #8B5CF6 ${(effects.filter.freq / 20000) * 100}%, rgba(0,0,0,0.1) ${(effects.filter.freq / 20000) * 100}%)`
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Delay Module */}
+                  <div className="relative bg-[#F8F6F0] border border-[#1A1A1A]/15 p-4" style={{ boxShadow: 'inset 0 1px 0 white, 0 2px 4px rgba(0,0,0,0.05)' }}>
+                    <div className="absolute left-0 top-1/2 w-2 h-2 bg-[#8B5CF6] rounded-full" style={{ transform: 'translate(-50%, -50%)' }} />
+                    <div className="absolute right-0 top-1/2 w-2 h-2 bg-[#8B5CF6] rounded-full" style={{ transform: 'translate(50%, -50%)' }} />
+
+                    <div className="text-center mb-3">
+                      <span className="text-[9px] font-semibold tracking-[0.15em] uppercase text-[#8B5CF6]">Delay</span>
+                    </div>
+
+                    <div className="flex flex-col items-center mb-3">
+                      <div
+                        className="w-12 h-12 rounded-full border-2 border-[#1A1A1A]/20 bg-gradient-to-b from-[#FAFAFA] to-[#E5E5E5] relative"
+                        style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 white' }}
+                      >
+                        <motion.div
+                          className="absolute w-1 h-4 bg-[#8B5CF6] rounded-full left-1/2 top-1"
+                          style={{
+                            transformOrigin: 'center 20px',
+                            transform: `translateX(-50%) rotate(${effects.delay.mix * 270 - 135}deg)`
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[8px] tracking-wider uppercase text-[#1A1A1A]/40">Mix</span>
+                        <span className="text-[9px] font-medium text-[#1A1A1A]/70">{Math.round(effects.delay.mix * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={effects.delay.mix * 100}
+                        onChange={(e) => updateEffect('delay', 'mix', Number(e.target.value) / 100)}
+                        className="w-full h-1.5 appearance-none bg-[#1A1A1A]/10 rounded-full cursor-pointer"
+                        style={{
+                          background: `linear-gradient(to right, #8B5CF6 ${effects.delay.mix * 100}%, rgba(0,0,0,0.1) ${effects.delay.mix * 100}%)`
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Reverb Module */}
+                  <div className="relative bg-[#F8F6F0] border border-[#1A1A1A]/15 p-4" style={{ boxShadow: 'inset 0 1px 0 white, 0 2px 4px rgba(0,0,0,0.05)' }}>
+                    <div className="absolute left-0 top-1/2 w-2 h-2 bg-[#8B5CF6] rounded-full" style={{ transform: 'translate(-50%, -50%)' }} />
+                    <div className="absolute right-0 top-1/2 w-2 h-2 bg-[#8B5CF6] rounded-full" style={{ transform: 'translate(50%, -50%)' }} />
+
+                    <div className="text-center mb-3">
+                      <span className="text-[9px] font-semibold tracking-[0.15em] uppercase text-[#8B5CF6]">Reverb</span>
+                    </div>
+
+                    <div className="flex flex-col items-center mb-3">
+                      <div
+                        className="w-12 h-12 rounded-full border-2 border-[#1A1A1A]/20 bg-gradient-to-b from-[#FAFAFA] to-[#E5E5E5] relative"
+                        style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 white' }}
+                      >
+                        <motion.div
+                          className="absolute w-1 h-4 bg-[#8B5CF6] rounded-full left-1/2 top-1"
+                          style={{
+                            transformOrigin: 'center 20px',
+                            transform: `translateX(-50%) rotate(${effects.reverb.mix * 270 - 135}deg)`
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[8px] tracking-wider uppercase text-[#1A1A1A]/40">Mix</span>
+                        <span className="text-[9px] font-medium text-[#1A1A1A]/70">{Math.round(effects.reverb.mix * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={effects.reverb.mix * 100}
+                        onChange={(e) => updateEffect('reverb', 'mix', Number(e.target.value) / 100)}
+                        className="w-full h-1.5 appearance-none bg-[#1A1A1A]/10 rounded-full cursor-pointer"
+                        style={{
+                          background: `linear-gradient(to right, #8B5CF6 ${effects.reverb.mix * 100}%, rgba(0,0,0,0.1) ${effects.reverb.mix * 100}%)`
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Master Module */}
+                  <div className="relative bg-[#1A1A1A] border border-[#8B5CF6]/30 p-4" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.2), 0 0 20px rgba(139, 92, 246, 0.1)' }}>
+                    <div className="absolute left-0 top-1/2 w-2 h-2 bg-[#8B5CF6] rounded-full" style={{ transform: 'translate(-50%, -50%)', boxShadow: '0 0 6px rgba(139, 92, 246, 0.8)' }} />
+
+                    <div className="text-center mb-3">
+                      <span className="text-[9px] font-semibold tracking-[0.15em] uppercase text-[#8B5CF6]">Master</span>
+                    </div>
+
+                    {/* VU Meter */}
+                    <div className="flex justify-center gap-1 mb-3">
+                      <div className="flex flex-col-reverse gap-0.5">
+                        {Array.from({ length: 10 }).map((_, i) => (
+                          <motion.div
                             key={i}
-                            className="w-0.5 bg-[#8B5CF6] rounded-full"
-                            style={{ height: `${v * 100}%`, minHeight: 2 }}
+                            className="w-8 h-1.5 rounded-sm"
+                            style={{
+                              background: i > 7 ? '#EF4444' : i > 5 ? '#F59E0B' : '#22C55E',
+                              opacity: meterPercent > i * 10 ? 1 : 0.2,
+                              boxShadow: meterPercent > i * 10 ? `0 0 4px ${i > 7 ? '#EF4444' : i > 5 ? '#F59E0B' : '#22C55E'}` : 'none'
+                            }}
                           />
                         ))}
                       </div>
-                    )}
-                    <span className="text-[9px] tracking-wider text-[#1A1A1A]/50 mt-1 truncate max-w-full px-2">
-                      {pad.label.toUpperCase()}
-                    </span>
-                  </>
-                ) : (
-                  <Upload className="w-4 h-4 text-[#1A1A1A]/20 group-hover:text-[#8B5CF6]/40 transition-colors" />
-                )}
-              </div>
+                    </div>
 
-              {/* Keyboard hint */}
-              <span className="absolute top-1 left-1 text-[8px] text-[#1A1A1A]/20">
-                {['1', '2', '3', '4', 'Q', 'W', 'E', 'R'][index]}
-              </span>
-
-              {/* Corner accents when loaded */}
-              {pad.loaded && (
-                <>
-                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#8B5CF6]/30" />
-                  <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[#8B5CF6]/30" />
-                  <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-[#8B5CF6]/30" />
-                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#8B5CF6]/30" />
-                </>
-              )}
-            </motion.button>
-          ))}
-        </motion.div>
-
-        {/* Effects Panel - Minimal geometric controls */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="border border-[#1A1A1A]/10 p-8"
-        >
-          <div className="flex items-center justify-between mb-8">
-            <span className="text-[10px] tracking-[0.2em] uppercase text-[#1A1A1A]/40">Signal Chain</span>
-            <div className="flex gap-1">
-              {[0, 1, 2].map(i => (
-                <div key={i} className="w-1 h-1 bg-[#8B5CF6]/30" />
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {/* Filter */}
-            <div className="space-y-4">
-              <span className="text-[10px] tracking-[0.15em] uppercase text-[#8B5CF6]">Filter</span>
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-[9px] text-[#1A1A1A]/30 mb-1">
-                    <span>FREQ</span>
-                    <span>{Math.round(effects.filter.freq)}Hz</span>
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[8px] tracking-wider uppercase text-white/40">Vol</span>
+                        <span className="text-[9px] font-medium text-white/70">{effects.master.volume}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={effects.master.volume}
+                        onChange={(e) => updateEffect('master', 'volume', Number(e.target.value))}
+                        className="w-full h-1.5 appearance-none bg-white/10 rounded-full cursor-pointer"
+                        style={{
+                          background: `linear-gradient(to right, #8B5CF6 ${effects.master.volume}%, rgba(255,255,255,0.1) ${effects.master.volume}%)`
+                        }}
+                      />
+                    </div>
                   </div>
-                  <input
-                    type="range"
-                    min="20"
-                    max="20000"
-                    value={effects.filter.freq}
-                    onChange={(e) => updateEffect('filter', 'freq', Number(e.target.value))}
-                    className="w-full h-px appearance-none bg-[#1A1A1A]/10 cursor-pointer"
-                    style={{ accentColor: '#8B5CF6' }}
-                  />
                 </div>
               </div>
             </div>
 
-            {/* Delay */}
-            <div className="space-y-4">
-              <span className="text-[10px] tracking-[0.15em] uppercase text-[#8B5CF6]">Delay</span>
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-[9px] text-[#1A1A1A]/30 mb-1">
-                    <span>MIX</span>
-                    <span>{Math.round(effects.delay.mix * 100)}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={effects.delay.mix * 100}
-                    onChange={(e) => updateEffect('delay', 'mix', Number(e.target.value) / 100)}
-                    className="w-full h-px appearance-none bg-[#1A1A1A]/10 cursor-pointer"
-                    style={{ accentColor: '#8B5CF6' }}
-                  />
-                </div>
+            {/* Bottom Panel - Footer */}
+            <div className="border-t-2 border-[#1A1A1A]/10 px-6 py-3 flex justify-between items-center bg-[#EBE8E0]">
+              <div className="flex items-center gap-4">
+                <span className="text-[9px] tracking-wider uppercase text-[#1A1A1A]/40">Keys: 1-4, Q-R</span>
+                <span className="text-[#1A1A1A]/20">|</span>
+                <span className="text-[9px] tracking-wider uppercase text-[#1A1A1A]/40">Space: Stop</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] tracking-wider uppercase text-[#1A1A1A]/30">Member Exclusive</span>
+                <div className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full" style={{ boxShadow: '0 0 4px rgba(139, 92, 246, 0.6)' }} />
               </div>
             </div>
 
-            {/* Reverb */}
-            <div className="space-y-4">
-              <span className="text-[10px] tracking-[0.15em] uppercase text-[#8B5CF6]">Reverb</span>
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-[9px] text-[#1A1A1A]/30 mb-1">
-                    <span>MIX</span>
-                    <span>{Math.round(effects.reverb.mix * 100)}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={effects.reverb.mix * 100}
-                    onChange={(e) => updateEffect('reverb', 'mix', Number(e.target.value) / 100)}
-                    className="w-full h-px appearance-none bg-[#1A1A1A]/10 cursor-pointer"
-                    style={{ accentColor: '#8B5CF6' }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Master */}
-            <div className="space-y-4">
-              <span className="text-[10px] tracking-[0.15em] uppercase text-[#8B5CF6]">Master</span>
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-[9px] text-[#1A1A1A]/30 mb-1">
-                    <span>VOLUME</span>
-                    <span>{effects.master.volume}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={effects.master.volume}
-                    onChange={(e) => updateEffect('master', 'volume', Number(e.target.value))}
-                    className="w-full h-px appearance-none bg-[#1A1A1A]/10 cursor-pointer"
-                    style={{ accentColor: '#8B5CF6' }}
-                  />
-                </div>
-              </div>
-            </div>
+            {/* Mounting holes - decorative */}
+            <div className="absolute top-3 left-3 w-2 h-2 rounded-full bg-[#1A1A1A]/10 border border-[#1A1A1A]/5" />
+            <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#1A1A1A]/10 border border-[#1A1A1A]/5" />
+            <div className="absolute bottom-3 left-3 w-2 h-2 rounded-full bg-[#1A1A1A]/10 border border-[#1A1A1A]/5" />
+            <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-[#1A1A1A]/10 border border-[#1A1A1A]/5" />
           </div>
         </motion.div>
-
-        {/* Footer info */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-8 flex justify-between text-[10px] text-[#1A1A1A]/30"
-        >
-          <span>Keys: 1-4, Q-R to trigger | Space to stop</span>
-          <span>Member exclusive instrument</span>
-        </motion.div>
-      </div>
-
-      {/* Bottom Diamond */}
-      <div className="fixed bottom-8 right-8">
-        <div className="w-3 h-3 border border-[#1A1A1A]/20 rotate-45" />
       </div>
     </div>
   );
