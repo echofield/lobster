@@ -1,8 +1,8 @@
-import { Link, useParams } from 'react-router';
+import { Link, useParams, useSearchParams } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
-import { drops, memberCards } from '@/data/cards';
-import { useState, useEffect } from 'react';
-import { Play, Pause, ShoppingBag } from 'lucide-react';
+import { drops, memberCards, type Drop } from '@/data/cards';
+import { useState, useEffect, useMemo } from 'react';
+import { Play, Pause, Search, Grid3X3, List, Disc, Music, Layers, Radio } from 'lucide-react';
 
 // Abstract cover patterns
 const CoverPatterns = {
@@ -120,18 +120,76 @@ const CoverPatterns = {
 
 const patterns = ['squares', 'circles', 'grid', 'hexagon'] as const;
 
+// Category icons
+const categoryIcons = {
+  all: Layers,
+  pack: Disc,
+  single: Music,
+  collection: Radio,
+};
+
+type FilterType = 'all' | 'pack' | 'single' | 'collection';
+
 export function MemberAccessPage() {
   const { token } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const card = memberCards[0];
   const [phase, setPhase] = useState<'detecting' | 'recognized' | 'granted' | 'ready'>('detecting');
   const [hoveredDrop, setHoveredDrop] = useState<string | null>(null);
   const [playingDrop, setPlayingDrop] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Get filter from URL params
+  const filterParam = searchParams.get('filter') as FilterType | null;
+  const [activeFilter, setActiveFilter] = useState<FilterType>(
+    filterParam === 'packs' ? 'pack' : filterParam || 'all'
+  );
 
   const togglePlay = (dropId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setPlayingDrop(playingDrop === dropId ? null : dropId);
   };
+
+  const handleFilterChange = (filter: FilterType) => {
+    setActiveFilter(filter);
+    if (filter === 'all') {
+      searchParams.delete('filter');
+    } else {
+      searchParams.set('filter', filter === 'pack' ? 'packs' : filter);
+    }
+    setSearchParams(searchParams);
+  };
+
+  // Filter drops based on active filter and search
+  const filteredDrops = useMemo(() => {
+    let result = drops;
+
+    if (activeFilter !== 'all') {
+      result = result.filter(drop => drop.type === activeFilter);
+    }
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(drop =>
+        drop.title.toLowerCase().includes(query) ||
+        drop.artist.toLowerCase().includes(query) ||
+        drop.description.toLowerCase().includes(query)
+      );
+    }
+
+    return result;
+  }, [activeFilter, searchQuery]);
+
+  // Stats
+  const stats = useMemo(() => ({
+    total: drops.length,
+    packs: drops.filter(d => d.type === 'pack').length,
+    singles: drops.filter(d => d.type === 'single').length,
+    collections: drops.filter(d => d.type === 'collection').length,
+    totalTracks: drops.reduce((sum, d) => sum + d.trackCount, 0),
+  }), []);
 
   useEffect(() => {
     // NFC Magic Sequence
@@ -316,274 +374,372 @@ export function MemberAccessPage() {
                 </AnimatePresence>
               </div>
             </div>
-
-            {/* Floating geometric shapes */}
-            <motion.div
-              animate={{ rotate: 360, y: [0, -5, 0] }}
-              transition={{ rotate: { duration: 20, repeat: Infinity }, y: { duration: 3, repeat: Infinity } }}
-              className="absolute top-[20%] left-[15%]"
-            >
-              <svg width="30" height="26" viewBox="0 0 30 26" fill="none" className="opacity-[0.08]">
-                <path d="M15 0L30 26H0L15 0Z" stroke="#8B5CF6" strokeWidth="0.5" />
-              </svg>
-            </motion.div>
-
-            <motion.div
-              animate={{ rotate: -360 }}
-              transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-              className="absolute bottom-[25%] right-[20%]"
-            >
-              <div className="w-8 h-8 border border-[#8B5CF6]/10 rotate-45" />
-            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Soft ambient background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div
-          className="absolute top-1/4 left-1/3 w-[50vw] h-[50vw] rounded-full opacity-20 blur-[100px]"
-          style={{ background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%)' }}
-        />
-      </div>
-
-      {/* Nav */}
-      <motion.nav
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isReady ? 1 : 0 }}
-        transition={{ duration: 0.8 }}
-        className="fixed top-0 left-0 right-0 z-40 px-8 py-6 flex justify-between items-center"
-      >
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-4 h-4 border border-[#1A1A1A]/30 rotate-45" />
-          <span className="text-xs tracking-[0.2em] uppercase opacity-60">Lobster Sound</span>
-        </Link>
-        <span className="text-xs tracking-[0.15em] uppercase" style={{ color: '#8B5CF6' }}>
-          Archive
-        </span>
-      </motion.nav>
-
-      {/* Main Content */}
-      <div className="pt-32 pb-20 px-8 md:px-16 max-w-6xl mx-auto">
-        {/* Welcome Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: isReady ? 1 : 0, y: isReady ? 0 : 30 }}
-          transition={{ duration: 1 }}
-          className="text-center mb-20"
+      {/* Main Layout - Spotify-like with sidebar */}
+      <div className="flex min-h-screen">
+        {/* Left Sidebar */}
+        <motion.aside
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: isReady ? 1 : 0, x: isReady ? 0 : -20 }}
+          transition={{ duration: 0.6 }}
+          className="w-64 border-r border-[#1A1A1A]/5 p-6 flex flex-col"
         >
-          {/* Status Badge */}
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: isReady ? 1 : 0 }}
-            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-            className="inline-flex items-center gap-3 px-6 py-3 border border-[#8B5CF6]/30 mb-8"
-            style={{
-              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(167, 139, 250, 0.03) 100%)'
-            }}
-          >
-            <motion.div
-              animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-2 h-2"
-              style={{ background: '#8B5CF6', boxShadow: '0 0 10px rgba(139, 92, 246, 0.6)' }}
-            />
-            <span className="text-xs tracking-[0.15em] uppercase" style={{ color: '#8B5CF6' }}>
-              Signal Active
-            </span>
-          </motion.div>
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-3 mb-10">
+            <div className="w-5 h-5 border border-[#1A1A1A]/30 rotate-45" />
+            <span className="text-xs tracking-[0.2em] uppercase opacity-60">Lobster</span>
+          </Link>
 
-          <h1 className="text-4xl md:text-5xl font-serif mb-4">Your Archive</h1>
-          <p className="text-[#1A1A1A]/40">
-            Card #{String(41).padStart(3, '0')} <span className="mx-3 opacity-30">·</span> {card.edition}
-          </p>
-        </motion.div>
-
-        {/* Archive Section */}
-        <motion.section
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isReady ? 1 : 0 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-        >
-          <div className="flex justify-between items-center mb-10">
-            <span className="text-[10px] tracking-[0.2em] uppercase text-[#1A1A1A]/40">
-              Available Packs
-            </span>
-            <span className="text-xs text-[#1A1A1A]/30">
-              {drops.length} unlocked
-            </span>
-          </div>
-
-          {/* Album Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {drops.map((drop, i) => {
-              const PatternComponent = CoverPatterns[patterns[i % patterns.length]];
-              const isPlaying = playingDrop === drop.id;
-              const isHovered = hoveredDrop === drop.id;
-
+          {/* Navigation Categories */}
+          <nav className="space-y-1 mb-8">
+            <p className="text-[9px] tracking-[0.2em] uppercase text-[#1A1A1A]/30 mb-4">
+              Browse
+            </p>
+            {[
+              { id: 'all', label: 'All Sounds', count: stats.total },
+              { id: 'pack', label: 'Sample Packs', count: stats.packs },
+              { id: 'single', label: 'Singles', count: stats.singles },
+              { id: 'collection', label: 'Collections', count: stats.collections },
+            ].map((item) => {
+              const Icon = categoryIcons[item.id as FilterType];
+              const isActive = activeFilter === item.id;
               return (
-                <motion.div
-                  key={drop.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: isReady ? 1 : 0, y: isReady ? 0 : 30 }}
-                  transition={{ delay: 0.4 + i * 0.1, duration: 0.6 }}
-                  className="group"
-                  onMouseEnter={() => setHoveredDrop(drop.id)}
-                  onMouseLeave={() => setHoveredDrop(null)}
+                <button
+                  key={item.id}
+                  onClick={() => handleFilterChange(item.id as FilterType)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-all duration-200 ${
+                    isActive
+                      ? 'bg-[#8B5CF6]/10 text-[#8B5CF6]'
+                      : 'hover:bg-[#1A1A1A]/5 text-[#1A1A1A]/60 hover:text-[#1A1A1A]'
+                  }`}
                 >
-                  {/* Album Card */}
-                  <div className={`relative border transition-all duration-500 ${
-                    isHovered || isPlaying
-                      ? 'border-[#8B5CF6]/40 bg-[#8B5CF6]/[0.02]'
-                      : 'border-[#1A1A1A]/10'
-                  }`}>
-                    {/* Abstract Cover */}
-                    <div className="aspect-square relative overflow-hidden bg-[#FAF8F2]">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <PatternComponent isPlaying={isPlaying} />
-                      </div>
-
-                      {/* Play Button Overlay */}
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: isHovered || isPlaying ? 1 : 0 }}
-                        className="absolute inset-0 flex items-center justify-center bg-[#FAF8F2]/60 backdrop-blur-sm"
-                      >
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={(e) => togglePlay(drop.id, e)}
-                          className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 ${
-                            isPlaying
-                              ? 'bg-[#8B5CF6] text-white'
-                              : 'border-2 border-[#8B5CF6] text-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white'
-                          }`}
-                          style={{
-                            boxShadow: isPlaying ? '0 0 30px rgba(139, 92, 246, 0.4)' : 'none'
-                          }}
-                        >
-                          {isPlaying ? (
-                            <Pause className="w-6 h-6" fill="currentColor" />
-                          ) : (
-                            <Play className="w-6 h-6 ml-1" fill="currentColor" />
-                          )}
-                        </motion.button>
-                      </motion.div>
-
-                      {/* Playing indicator */}
-                      {isPlaying && (
-                        <motion.div
-                          className="absolute bottom-4 left-4 right-4"
-                        >
-                          <div className="flex items-end gap-1 h-4">
-                            {[...Array(12)].map((_, j) => (
-                              <motion.div
-                                key={j}
-                                className="flex-1 bg-[#8B5CF6]"
-                                animate={{
-                                  height: ['30%', '100%', '50%', '80%', '30%']
-                                }}
-                                transition={{
-                                  duration: 0.8,
-                                  repeat: Infinity,
-                                  delay: j * 0.05,
-                                  ease: 'easeInOut'
-                                }}
-                              />
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-
-                      {/* Exclusive Badge */}
-                      {drop.exclusive && (
-                        <div className="absolute top-4 right-4">
-                          <span
-                            className="text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-[#8B5CF6]/30"
-                            style={{
-                              color: '#8B5CF6',
-                              background: 'rgba(139, 92, 246, 0.08)'
-                            }}
-                          >
-                            Exclusive
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Info */}
-                    <div className="p-5 space-y-3">
-                      <div>
-                        <h3 className={`font-serif text-lg transition-colors duration-300 ${
-                          isHovered || isPlaying ? 'text-[#8B5CF6]' : ''
-                        }`}>
-                          {drop.title}
-                        </h3>
-                        <p className="text-sm text-[#1A1A1A]/40 mt-1">{drop.artist}</p>
-                      </div>
-
-                      <p className="text-xs text-[#1A1A1A]/30 line-clamp-2">
-                        {drop.description}
-                      </p>
-
-                      <div className="flex items-center justify-between pt-2 border-t border-[#1A1A1A]/5">
-                        <span className="text-[10px] text-[#1A1A1A]/30 tracking-wide">
-                          {drop.trackCount} signals · {drop.duration}
-                        </span>
-
-                        <Link
-                          to={`/drop/${drop.id}`}
-                          className="inline-flex items-center gap-2 px-4 py-2 text-xs tracking-[0.1em] uppercase transition-all duration-300 border border-[#8B5CF6]/30 hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6]"
-                          style={{ color: '#8B5CF6' }}
-                        >
-                          <ShoppingBag className="w-3 h-3" />
-                          Access
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
+                  <Icon className="w-4 h-4" />
+                  <span className="text-xs tracking-wide flex-1">{item.label}</span>
+                  <span className={`text-[10px] ${isActive ? 'text-[#8B5CF6]' : 'text-[#1A1A1A]/30'}`}>
+                    {item.count}
+                  </span>
+                </button>
               );
             })}
-          </div>
-        </motion.section>
+          </nav>
 
-        {/* Card Status */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isReady ? 1 : 0 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
-          className="mt-16 p-6 border border-[#1A1A1A]/10"
-        >
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/30">
-                Card Signal
+          {/* Quick Links */}
+          <nav className="space-y-1 mb-8">
+            <p className="text-[9px] tracking-[0.2em] uppercase text-[#1A1A1A]/30 mb-4">
+              Studio
+            </p>
+            <Link
+              to="/instrument"
+              className="flex items-center gap-3 px-3 py-2.5 text-[#1A1A1A]/60 hover:text-[#1A1A1A] hover:bg-[#1A1A1A]/5 transition-all duration-200"
+            >
+              <div className="w-4 h-4 border border-current rounded-full" />
+              <span className="text-xs tracking-wide">Instrument</span>
+            </Link>
+          </nav>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Card Status - Bottom */}
+          <div className="border-t border-[#1A1A1A]/5 pt-6">
+            <div className="flex items-center gap-3 mb-3">
+              <motion.div
+                animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-2 h-2"
+                style={{ background: '#8B5CF6', boxShadow: '0 0 8px rgba(139, 92, 246, 0.5)' }}
+              />
+              <span className="text-[10px] tracking-[0.1em] uppercase text-[#8B5CF6]">
+                Signal Active
               </span>
-              <div className="flex items-center gap-2 mt-2">
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="w-2 h-2"
-                  style={{ background: '#8B5CF6', boxShadow: '0 0 8px rgba(139, 92, 246, 0.5)' }}
+            </div>
+            <p className="text-[10px] text-[#1A1A1A]/40">
+              Card #{String(41).padStart(3, '0')} · {card.edition}
+            </p>
+          </div>
+        </motion.aside>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-auto">
+          {/* Header with Search */}
+          <motion.header
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: isReady ? 1 : 0, y: isReady ? 0 : -10 }}
+            transition={{ duration: 0.6 }}
+            className="sticky top-0 z-10 bg-[#FAF8F2]/90 backdrop-blur-sm border-b border-[#1A1A1A]/5 px-8 py-4"
+          >
+            <div className="flex items-center justify-between gap-6">
+              {/* Search */}
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1A1A1A]/30" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search sounds..."
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#1A1A1A]/5 border-none text-sm placeholder:text-[#1A1A1A]/30 focus:outline-none focus:ring-1 focus:ring-[#8B5CF6]/30"
                 />
-                <span className="text-sm">Active</span>
+              </div>
+
+              {/* View Toggle */}
+              <div className="flex items-center gap-2 p-1 bg-[#1A1A1A]/5">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 transition-colors ${
+                    viewMode === 'grid' ? 'bg-white text-[#8B5CF6] shadow-sm' : 'text-[#1A1A1A]/40 hover:text-[#1A1A1A]'
+                  }`}
+                >
+                  <Grid3X3 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 transition-colors ${
+                    viewMode === 'list' ? 'bg-white text-[#8B5CF6] shadow-sm' : 'text-[#1A1A1A]/40 hover:text-[#1A1A1A]'
+                  }`}
+                >
+                  <List className="w-4 h-4" />
+                </button>
               </div>
             </div>
-            <div className="text-right">
-              <span className="text-[10px] tracking-[0.15em] uppercase text-[#1A1A1A]/30">
-                Access Level
-              </span>
-              <p className="text-sm mt-2">Full Archive</p>
-            </div>
+          </motion.header>
+
+          {/* Content Area */}
+          <div className="p-8">
+            {/* Section Header */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: isReady ? 1 : 0, y: isReady ? 0 : 20 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="mb-8"
+            >
+              <h1 className="text-3xl font-serif mb-2">
+                {activeFilter === 'all' ? 'Your Archive' :
+                 activeFilter === 'pack' ? 'Sample Packs' :
+                 activeFilter === 'single' ? 'Singles' : 'Collections'}
+              </h1>
+              <p className="text-sm text-[#1A1A1A]/40">
+                {filteredDrops.length} {filteredDrops.length === 1 ? 'item' : 'items'} · {stats.totalTracks} total signals
+              </p>
+            </motion.div>
+
+            {/* Drops Grid/List */}
+            {viewMode === 'grid' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredDrops.map((drop, i) => (
+                  <DropCard
+                    key={drop.id}
+                    drop={drop}
+                    index={i}
+                    isReady={isReady}
+                    isPlaying={playingDrop === drop.id}
+                    isHovered={hoveredDrop === drop.id}
+                    onHover={setHoveredDrop}
+                    onTogglePlay={togglePlay}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {filteredDrops.map((drop, i) => (
+                  <DropListItem
+                    key={drop.id}
+                    drop={drop}
+                    index={i}
+                    isReady={isReady}
+                    isPlaying={playingDrop === drop.id}
+                    isHovered={hoveredDrop === drop.id}
+                    onHover={setHoveredDrop}
+                    onTogglePlay={togglePlay}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Empty State */}
+            {filteredDrops.length === 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-20"
+              >
+                <div className="w-16 h-16 border border-[#1A1A1A]/10 rotate-45 mx-auto mb-6" />
+                <p className="text-[#1A1A1A]/40">No sounds found</p>
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    handleFilterChange('all');
+                  }}
+                  className="mt-4 text-xs text-[#8B5CF6] hover:underline"
+                >
+                  Clear filters
+                </button>
+              </motion.div>
+            )}
           </div>
-        </motion.div>
+        </main>
       </div>
 
       {/* Bottom Diamond */}
-      <div className="fixed bottom-8 right-8">
+      <div className="fixed bottom-8 right-8 pointer-events-none">
         <div className="w-3 h-3 border border-[#1A1A1A]/20 rotate-45" />
       </div>
     </div>
+  );
+}
+
+// Drop Card Component
+interface DropCardProps {
+  drop: Drop;
+  index: number;
+  isReady: boolean;
+  isPlaying: boolean;
+  isHovered: boolean;
+  onHover: (id: string | null) => void;
+  onTogglePlay: (id: string, e: React.MouseEvent) => void;
+}
+
+function DropCard({ drop, index, isReady, isPlaying, isHovered, onHover, onTogglePlay }: DropCardProps) {
+  const PatternComponent = CoverPatterns[patterns[index % patterns.length]];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: isReady ? 1 : 0, y: isReady ? 0 : 20 }}
+      transition={{ delay: 0.2 + index * 0.05, duration: 0.5 }}
+      className="group"
+      onMouseEnter={() => onHover(drop.id)}
+      onMouseLeave={() => onHover(null)}
+    >
+      <Link to={`/drop/${drop.id}`} className="block">
+        <div className={`relative border transition-all duration-300 ${
+          isHovered || isPlaying
+            ? 'border-[#8B5CF6]/40 bg-[#8B5CF6]/[0.02]'
+            : 'border-[#1A1A1A]/10 hover:border-[#1A1A1A]/20'
+        }`}>
+          {/* Cover */}
+          <div className="aspect-square relative overflow-hidden bg-[#FAF8F2]">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <PatternComponent isPlaying={isPlaying} />
+            </div>
+
+            {/* Play Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isHovered || isPlaying ? 1 : 0 }}
+              className="absolute inset-0 flex items-center justify-center bg-[#FAF8F2]/60 backdrop-blur-sm"
+            >
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => onTogglePlay(drop.id, e)}
+                className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  isPlaying
+                    ? 'bg-[#8B5CF6] text-white'
+                    : 'border-2 border-[#8B5CF6] text-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white'
+                }`}
+              >
+                {isPlaying ? (
+                  <Pause className="w-5 h-5" fill="currentColor" />
+                ) : (
+                  <Play className="w-5 h-5 ml-0.5" fill="currentColor" />
+                )}
+              </motion.button>
+            </motion.div>
+
+            {/* Exclusive Badge */}
+            {drop.exclusive && (
+              <div className="absolute top-3 right-3">
+                <span className="text-[8px] tracking-[0.1em] uppercase px-2 py-1 border border-[#8B5CF6]/30 bg-[#8B5CF6]/10 text-[#8B5CF6]">
+                  Exclusive
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Info */}
+          <div className="p-4">
+            <h3 className={`font-serif text-sm transition-colors duration-200 ${
+              isHovered || isPlaying ? 'text-[#8B5CF6]' : ''
+            }`}>
+              {drop.title}
+            </h3>
+            <p className="text-xs text-[#1A1A1A]/40 mt-1">{drop.artist}</p>
+            <p className="text-[10px] text-[#1A1A1A]/30 mt-2">
+              {drop.trackCount} signals · {drop.duration}
+            </p>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
+
+// Drop List Item Component
+function DropListItem({ drop, index, isReady, isPlaying, isHovered, onHover, onTogglePlay }: DropCardProps) {
+  const PatternComponent = CoverPatterns[patterns[index % patterns.length]];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: isReady ? 1 : 0, x: isReady ? 0 : -10 }}
+      transition={{ delay: 0.2 + index * 0.03, duration: 0.4 }}
+      onMouseEnter={() => onHover(drop.id)}
+      onMouseLeave={() => onHover(null)}
+    >
+      <Link
+        to={`/drop/${drop.id}`}
+        className={`flex items-center gap-4 p-3 border transition-all duration-200 ${
+          isHovered || isPlaying
+            ? 'border-[#8B5CF6]/40 bg-[#8B5CF6]/[0.02]'
+            : 'border-[#1A1A1A]/5 hover:border-[#1A1A1A]/15'
+        }`}
+      >
+        {/* Mini Cover */}
+        <div className="w-14 h-14 relative flex-shrink-0 bg-[#FAF8F2]">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <PatternComponent isPlaying={isPlaying} />
+          </div>
+          {/* Play button on hover */}
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isHovered ? 1 : 0 }}
+            onClick={(e) => onTogglePlay(drop.id, e)}
+            className="absolute inset-0 flex items-center justify-center bg-[#FAF8F2]/80"
+          >
+            {isPlaying ? (
+              <Pause className="w-5 h-5 text-[#8B5CF6]" fill="currentColor" />
+            ) : (
+              <Play className="w-5 h-5 text-[#8B5CF6] ml-0.5" fill="currentColor" />
+            )}
+          </motion.button>
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <h3 className={`text-sm font-medium truncate transition-colors ${
+            isHovered || isPlaying ? 'text-[#8B5CF6]' : ''
+          }`}>
+            {drop.title}
+          </h3>
+          <p className="text-xs text-[#1A1A1A]/40 truncate">{drop.artist}</p>
+        </div>
+
+        {/* Meta */}
+        <div className="text-right flex-shrink-0">
+          <p className="text-xs text-[#1A1A1A]/50">{drop.trackCount} signals</p>
+          <p className="text-[10px] text-[#1A1A1A]/30">{drop.duration}</p>
+        </div>
+
+        {/* Exclusive Badge */}
+        {drop.exclusive && (
+          <span className="text-[8px] tracking-[0.1em] uppercase px-2 py-1 border border-[#8B5CF6]/30 bg-[#8B5CF6]/10 text-[#8B5CF6] flex-shrink-0">
+            Exclusive
+          </span>
+        )}
+      </Link>
+    </motion.div>
   );
 }

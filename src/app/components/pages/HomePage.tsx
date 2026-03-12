@@ -6,7 +6,7 @@ import { Play, Pause } from 'lucide-react';
 
 export function HomePage() {
   const featuredCard = memberCards[0];
-  const [activeTab, setActiveTab] = useState(2);
+  const [activeTab, setActiveTab] = useState<number | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState(0);
@@ -28,7 +28,13 @@ export function HomePage() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const tabs = ['ARCHIVE', 'DROPS', 'MEMBERSHIP', 'SIGNAL', 'ACCESS', 'VOID'];
+  // Navigation tabs with actual routes
+  const tabs = [
+    { label: 'ARCHIVE', path: '/access' },
+    { label: 'DROPS', path: '/access?filter=packs' },
+    { label: 'INSTRUMENT', path: '/instrument' },
+    { label: 'MEMBERSHIP', path: '/card' },
+  ];
 
   return (
     <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] relative overflow-hidden flex flex-col">
@@ -484,18 +490,17 @@ export function HomePage() {
         className="pb-8 flex justify-center gap-8"
       >
         {tabs.map((tab, i) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(i)}
-            className={`text-[10px] tracking-[0.15em] uppercase transition-all duration-300 relative ${
-              activeTab === i ? 'opacity-100' : 'opacity-25 hover:opacity-50'
-            }`}
+          <Link
+            key={tab.label}
+            to={tab.path}
+            className="text-[10px] tracking-[0.15em] uppercase transition-all duration-300 relative opacity-40 hover:opacity-100"
+            onMouseEnter={() => setActiveTab(i)}
             style={{
               color: activeTab === i ? '#8B5CF6' : undefined,
               textShadow: activeTab === i ? '0 0 12px rgba(139, 92, 246, 0.3)' : undefined
             }}
           >
-            {tab}
+            {tab.label}
             {activeTab === i && (
               <motion.div
                 layoutId="tabIndicator"
@@ -505,7 +510,7 @@ export function HomePage() {
                 }}
               />
             )}
-          </button>
+          </Link>
         ))}
       </motion.div>
     </div>
