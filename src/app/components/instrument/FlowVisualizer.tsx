@@ -20,6 +20,10 @@ interface FlowVisualizerProps {
   meterLevel: number;
   activeNodeId: string | null;
   nodePositions: { x: number; y: number }[];
+  // New props for Meridian and Aura
+  globalPitch?: number; // -12 to +12 semitones
+  reverbMix?: number; // 0 to 1
+  masterVolume?: number; // 0 to 100
 }
 
 export function FlowVisualizer({
@@ -30,9 +34,24 @@ export function FlowVisualizer({
   meterLevel,
   activeNodeId,
   nodePositions,
+  globalPitch = 0,
+  reverbMix = 0,
+  masterVolume = 80,
 }: FlowVisualizerProps) {
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const rippleIdRef = useRef(0);
+
+  // Calculate aura intensity based on activity, reverb, and master volume
+  const auraIntensity = Math.min(
+    1,
+    (Math.max(0, (meterLevel + 60) / 60) * 0.4 + reverbMix * 0.3 + (masterVolume / 100) * 0.3)
+  );
+
+  // Calculate aura expansion (how much the glow extends beyond the circle)
+  const auraExpansion = auraIntensity * GEOMETRY.auraMaxExpansion;
+
+  // Calculate meridian tilt based on pitch (±3 degrees max)
+  const meridianTilt = (globalPitch / 12) * 3;
 
   // Add ripple when node triggers
   useEffect(() => {
@@ -173,6 +192,87 @@ export function FlowVisualizer({
           duration: 4,
           repeat: Infinity,
           ease: 'easeInOut',
+        }}
+      />
+
+      {/* Meridian - Vertical tonal axis line */}
+      <motion.line
+        x1={centerX}
+        y1={centerY - radius + 10}
+        x2={centerX}
+        y2={centerY + radius - 10}
+        stroke={COLORS.violet}
+        strokeWidth={1}
+        strokeOpacity={0.08}
+        strokeDasharray="4 8"
+        animate={{
+          rotate: meridianTilt,
+        }}
+        transition={{
+          type: 'spring',
+          stiffness: 100,
+          damping: 20,
+        }}
+        style={{
+          transformOrigin: `${centerX}px ${centerY}px`,
+        }}
+      />
+
+      {/* Meridian center dot */}
+      <motion.circle
+        cx={centerX}
+        cy={centerY}
+        r={2}
+        fill={COLORS.violet}
+        animate={{
+          opacity: globalPitch !== 0 ? 0.4 : 0.15,
+          scale: globalPitch !== 0 ? 1.2 : 1,
+        }}
+        transition={{
+          type: 'spring',
+          stiffness: 200,
+          damping: 15,
+        }}
+      />
+
+      {/* Aura - Outer energy glow */}
+      <motion.circle
+        cx={centerX}
+        cy={centerY}
+        r={radius + 10}
+        fill="none"
+        stroke={COLORS.violet}
+        strokeWidth={4 + auraExpansion * 0.5}
+        animate={{
+          r: radius + 10 + auraExpansion,
+          strokeOpacity: 0.02 + auraIntensity * 0.08,
+        }}
+        transition={{
+          type: 'spring',
+          stiffness: 100,
+          damping: 20,
+        }}
+        style={{
+          filter: `blur(${2 + auraExpansion * 0.3}px)`,
+        }}
+      />
+
+      {/* Secondary aura ring */}
+      <motion.circle
+        cx={centerX}
+        cy={centerY}
+        r={radius + 5}
+        fill="none"
+        stroke={COLORS.violet}
+        strokeWidth={2}
+        animate={{
+          r: radius + 5 + auraExpansion * 0.6,
+          strokeOpacity: 0.03 + auraIntensity * 0.05,
+        }}
+        transition={{
+          type: 'spring',
+          stiffness: 120,
+          damping: 18,
         }}
       />
     </svg>

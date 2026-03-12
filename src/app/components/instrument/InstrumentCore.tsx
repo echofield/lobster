@@ -9,6 +9,7 @@ interface InstrumentCoreProps {
   subtitle: string;
   isActive: boolean;
   isPlaying: boolean;
+  tempo?: number; // BPM for breathing sync
   onClick: () => void;
 }
 
@@ -17,8 +18,11 @@ export function InstrumentCore({
   subtitle,
   isActive,
   isPlaying,
+  tempo = 120,
   onClick,
 }: InstrumentCoreProps) {
+  // Breathing duration synced to tempo (2 beats)
+  const breathDuration = (60 / tempo) * 2;
   return (
     <motion.button
       onClick={onClick}
@@ -47,8 +51,18 @@ export function InstrumentCore({
         }}
       />
 
-      {/* Core container */}
-      <div className="relative w-24 h-24 flex items-center justify-center">
+      {/* Core container with breathing animation */}
+      <motion.div
+        className="relative w-24 h-24 flex items-center justify-center"
+        animate={{
+          scale: isPlaying ? [1, 1.005, 1] : 1,
+        }}
+        transition={{
+          duration: breathDuration,
+          repeat: isPlaying ? Infinity : 0,
+          ease: 'easeInOut',
+        }}
+      >
         {/* Rotating outer square */}
         <motion.div
           className="absolute inset-0"
@@ -105,7 +119,7 @@ export function InstrumentCore({
             boxShadow: `0 0 8px ${COLORS.violetGlow}`,
           }}
         />
-      </div>
+      </motion.div>
 
       {/* Title text below */}
       <div className="absolute top-full mt-6 left-1/2 -translate-x-1/2 text-center whitespace-nowrap">

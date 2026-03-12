@@ -1,7 +1,8 @@
 // MaterialNode - Sound specimen node around the circle
 
-import { motion } from 'motion/react';
-import { COLORS, GEOMETRY, TIMING } from '@/app/lib/instrument/constants';
+import { useState, useEffect } from 'react';
+import { motion, useSpring, useMotionValue } from 'motion/react';
+import { COLORS, GEOMETRY, TIMING, INERTIA } from '@/app/lib/instrument/constants';
 
 interface MaterialNodeProps {
   id: string;
@@ -14,6 +15,7 @@ interface MaterialNodeProps {
   isActive: boolean;
   isHovered: boolean;
   waveformData: number[] | null;
+  pitch?: number; // Per-node pitch offset
   onClick: () => void;
   onHover: (hovered: boolean) => void;
 }
@@ -29,10 +31,40 @@ export function MaterialNode({
   isActive,
   isHovered,
   waveformData,
+  pitch = 0,
   onClick,
   onHover,
 }: MaterialNodeProps) {
   const size = GEOMETRY.nodeRadius * 2;
+
+  // Tactile press state
+  const [isPressed, setIsPressed] = useState(false);
+  const [showAfterglow, setShowAfterglow] = useState(false);
+
+  // Spring-animated scale for press effect
+  const rawScale = useMotionValue(1);
+  const smoothScale = useSpring(rawScale, INERTIA.snappy);
+
+  // Trigger afterglow when node becomes active
+  useEffect(() => {
+    if (isActive) {
+      setShowAfterglow(true);
+      const timeout = setTimeout(() => setShowAfterglow(false), 400);
+      return () => clearTimeout(timeout);
+    }
+  }, [isActive]);
+
+  // Handle press
+  const handlePointerDown = () => {
+    setIsPressed(true);
+    rawScale.set(0.95);
+  };
+
+  const handlePointerUp = () => {
+    setIsPressed(false);
+    rawScale.set(1.02);
+    setTimeout(() => rawScale.set(1), 100);
+  };
 
   return (
     <motion.button
@@ -41,8 +73,15 @@ export function MaterialNode({
         left: x,
         top: y,
         transform: 'translate(-50%, -50%)',
+        scale: smoothScale,
       }}
       onClick={onClick}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={() => {
+        if (isPressed) handlePointerUp();
+        onHover(false);
+      }}
       onMouseEnter={() => onHover(true)}
       onMouseLeave={() => onHover(false)}
       initial={{ opacity: 0, scale: 0.5 }}
@@ -51,7 +90,6 @@ export function MaterialNode({
         scale: isActive ? GEOMETRY.nodeActiveScale : 1,
       }}
       transition={{ duration: 0.2 }}
-      whileTap={{ scale: 0.95 }}
     >
       {/* Outer glow on active */}
       {isActive && (
@@ -68,6 +106,24 @@ export function MaterialNode({
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1.2, opacity: [0.6, 0] }}
           transition={{ duration: TIMING.nodeGlow / 1000 }}
+        />
+      )}
+
+      {/* Afterglow effect - lingers after trigger */}
+      {showAfterglow && (
+        <motion.div
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            width: size * 1.3,
+            height: size * 1.3,
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            border: `1px solid ${COLORS.violet}`,
+          }}
+          initial={{ scale: 1, opacity: 0.5 }}
+          animate={{ scale: 1.4, opacity: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
         />
       )}
 
@@ -165,17 +221,32 @@ export function MaterialNode({
       </div>
 
       {/* Label below */}
-      <motion.p
-        className="absolute top-full mt-2 left-1/2 -translate-x-1/2 text-[8px] tracking-[0.1em] uppercase whitespace-nowrap"
-        style={{
-          color: isActive ? COLORS.violet : `${COLORS.ink}40`,
-        }}
+      <motion.div
+        className="absolute top-full mt-2 left-1/2 -translate-x-1/2 flex flex-col items-center gap-0.5"
         animate={{
           opacity: isHovered || loaded ? 1 : 0.5,
         }}
       >
-        {label}
-      </motion.p>
+        <p
+          className="text-[8px] tracking-[0.1em] uppercase whitespace-nowrap"
+          style={{
+            color: isActive ? COLORS.violet : `${COLORS.ink}40`,
+          }}
+        >
+          {label}
+        </p>
+        {/* Pitch indicator */}
+        {loaded && pitch !== 0 && (
+          <span
+            className="text-[7px] tracking-wider"
+            style={{
+              color: pitch > 0 ? COLORS.violet : `${COLORS.ink}50`,
+            }}
+          >
+            {pitch > 0 ? `+${pitch}` : pitch}
+          </span>
+        )}
+      </motion.div>
     </motion.button>
   );
 }

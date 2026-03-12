@@ -18,6 +18,7 @@ export const GEOMETRY = {
   // Circle radii for the instrument layers
   coreRadius: 48,
   nodeOrbitRadius: 140,
+  pitchRingRadius: 175, // Between nodes and effects
   effectOrbitRadius: 200,
   sequencerOrbitRadius: 240,
 
@@ -32,6 +33,15 @@ export const GEOMETRY = {
   // Sequencer
   sequencerDotRadius: 4,
   sequencerSteps: 8,
+
+  // BPM control
+  bpmControlSize: 40,
+
+  // Field monitor
+  fieldMonitorWidth: 300,
+
+  // Aura
+  auraMaxExpansion: 20,
 } as const;
 
 // Animation timings (in ms)
@@ -92,3 +102,25 @@ export const DEFAULT_SEQUENCER = {
   tempo: 120,
   stepCount: 8,
 };
+
+// Inertia presets for spring physics (the "500 Euro trick")
+export const INERTIA = {
+  default: { stiffness: 300, damping: 25, mass: 0.5 },
+  heavy: { stiffness: 200, damping: 30, mass: 0.8 },
+  snappy: { stiffness: 400, damping: 20, mass: 0.3 },
+} as const;
+
+// Pitch constants
+export const PITCH = {
+  min: -12,
+  max: 12,
+  // Default node pitches (major scale intervals)
+  nodeDefaults: [0, 2, 4, 5, 7, 9, 11, 12],
+} as const;
+
+// BPM constraints
+export const BPM = {
+  min: 60,
+  max: 200,
+  default: 120,
+} as const;

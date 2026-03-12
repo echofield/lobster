@@ -1,7 +1,9 @@
 // SignalRing - Effects as arc segments on outer ring
+// Updated with drag-based interaction and spring inertia
 
-import { motion } from 'motion/react';
-import { COLORS, GEOMETRY, EFFECT_ARCS } from '@/app/lib/instrument/constants';
+import { useRef, useCallback, useState } from 'react';
+import { motion, useSpring, useMotionValue } from 'motion/react';
+import { COLORS, GEOMETRY, EFFECT_ARCS, INERTIA } from '@/app/lib/instrument/constants';
 import { describeArc } from '@/app/lib/instrument/geometry';
 import type { EffectState, EffectType } from '@/app/lib/instrument/types';
 
@@ -77,9 +79,74 @@ export function SignalRing({
 }: SignalRingProps) {
   const radius = GEOMETRY.effectOrbitRadius;
   const arcWidth = GEOMETRY.effectArcWidth;
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [draggingEffect, setDraggingEffect] = useState<EffectType | null>(null);
+
+  // Calculate value from pointer position
+  const calculateValueFromPointer = useCallback(
+    (clientX: number, clientY: number, config: EffectArcConfig) => {
+      const svg = svgRef.current;
+      if (!svg) return null;
+
+      const rect = svg.getBoundingClientRect();
+      const x = clientX - rect.left - centerX;
+      const y = clientY - rect.top - centerY;
+
+      let angle = Math.atan2(y, x) * (180 / Math.PI);
+      const arcConfig = EFFECT_ARCS[config.id];
+
+      // Normalize angle to arc range
+      let normalizedAngle = angle;
+      if (normalizedAngle < arcConfig.start - 10) {
+        normalizedAngle += 360;
+      }
+
+      const arcRange = arcConfig.end - arcConfig.start;
+      const clickRatio = Math.max(0, Math.min(1, (normalizedAngle - arcConfig.start) / arcRange));
+
+      return config.min + clickRatio * (config.max - config.min);
+    },
+    [centerX, centerY]
+  );
+
+  // Handle pointer down - start dragging
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent, config: EffectArcConfig) => {
+      e.preventDefault();
+      e.stopPropagation();
+      (e.target as SVGElement).setPointerCapture(e.pointerId);
+      setDraggingEffect(config.id);
+
+      const newValue = calculateValueFromPointer(e.clientX, e.clientY, config);
+      if (newValue !== null) {
+        onEffectChange(config.id, config.valueKey, newValue);
+      }
+    },
+    [calculateValueFromPointer, onEffectChange]
+  );
+
+  // Handle pointer move - update value while dragging
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent, config: EffectArcConfig) => {
+      if (draggingEffect !== config.id) return;
+
+      const newValue = calculateValueFromPointer(e.clientX, e.clientY, config);
+      if (newValue !== null) {
+        onEffectChange(config.id, config.valueKey, newValue);
+      }
+    },
+    [draggingEffect, calculateValueFromPointer, onEffectChange]
+  );
+
+  // Handle pointer up - stop dragging
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+    (e.target as SVGElement).releasePointerCapture(e.pointerId);
+    setDraggingEffect(null);
+  }, []);
 
   return (
     <svg
+      ref={svgRef}
       className="absolute inset-0 pointer-events-none"
       style={{ width: '100%', height: '100%' }}
     >
@@ -167,39 +234,29 @@ export function SignalRing({
               }}
             />
 
-            {/* Interactive overlay */}
+            {/* Interactive overlay - drag-based with inertia feel */}
             <path
               d={trackPath}
               fill="none"
               stroke="transparent"
               strokeWidth={arcWidth + 16}
-              className="pointer-events-auto cursor-pointer"
+              className="pointer-events-auto cursor-grab"
+              style={{
+                cursor: draggingEffect === config.id ? 'grabbing' : 'grab',
+              }}
               onMouseEnter={() => onEffectHover(config.id)}
-              onMouseLeave={() => onEffectHover(null)}
-              onClick={(e) => {
-                // Calculate click position relative to arc
-                const rect = e.currentTarget.ownerSVGElement?.getBoundingClientRect();
-                if (!rect) return;
-
-                const clickX = e.clientX - rect.left;
-                const clickY = e.clientY - rect.top;
-                const angle = Math.atan2(clickY - centerY, clickX - centerX);
-                const angleDeg = (angle * 180) / Math.PI;
-
-                // Convert angle to value
-                let normalizedAngle = angleDeg;
-                if (normalizedAngle < arcConfig.start - 10) {
-                  normalizedAngle += 360;
+              onMouseLeave={() => {
+                if (draggingEffect !== config.id) {
+                  onEffectHover(null);
                 }
-
-                const arcRange = arcConfig.end - arcConfig.start;
-                const clickRatio = Math.max(
-                  0,
-                  Math.min(1, (normalizedAngle - arcConfig.start) / arcRange)
-                );
-
-                const newValue = config.min + clickRatio * (config.max - config.min);
-                onEffectChange(config.id, config.valueKey, newValue);
+              }}
+              onPointerDown={(e) => handlePointerDown(e, config)}
+              onPointerMove={(e) => handlePointerMove(e, config)}
+              onPointerUp={handlePointerUp}
+              onPointerLeave={(e) => {
+                if (draggingEffect === config.id) {
+                  handlePointerUp(e);
+                }
               }}
             />
 

@@ -13,6 +13,9 @@ class AudioEngine {
   limiter: Tone.Limiter | null
   meter: Tone.Meter | null
   analyser: Tone.Analyser | null
+  fftAnalyser: Tone.FFT | null
+  pitchShift: Tone.PitchShift | null
+  globalPitch: number
   sampleUrls: Record<string, string>
   maxVoices: number
   activeVoices: number
@@ -27,6 +30,9 @@ class AudioEngine {
     this.limiter = null
     this.meter = null
     this.analyser = null
+    this.fftAnalyser = null
+    this.pitchShift = null
+    this.globalPitch = 0
     this.sampleUrls = {}
     this.maxVoices = 32
     this.activeVoices = 0
@@ -41,6 +47,7 @@ class AudioEngine {
     // Create master meter for VU
     this.meter = new Tone.Meter({ smoothing: 0.8 })
     this.analyser = new Tone.Analyser('waveform', 256)
+    this.fftAnalyser = new Tone.FFT(64)
 
     // Filter (LP/HP switchable)
     this.effectsChain.filter = new Tone.Filter({
@@ -89,22 +96,32 @@ class AudioEngine {
     })
     this.effectsBypassed.compressor = false
 
+    // Global pitch shift
+    this.pitchShift = new Tone.PitchShift({
+      pitch: 0,
+      windowSize: 0.1,
+      delayTime: 0,
+      feedback: 0,
+    })
+
     // Master limiter
     this.limiter = new Tone.Limiter(-1)
 
     // Master gain
     this.masterGain = new Tone.Gain(0.8)
 
-    // Chain everything
+    // Chain everything (with pitch shift and FFT)
     this.effectsChain.filter.chain(
       this.effectsChain.drive,
       this.effectsChain.delay,
       this.effectsChain.reverb,
       this.effectsChain.compressor,
+      this.pitchShift,
       this.limiter,
       this.masterGain,
       this.meter,
       this.analyser,
+      this.fftAnalyser,
       Tone.Destination
     )
 
@@ -326,6 +343,18 @@ class AudioEngine {
     this.masterGain?.gain.rampTo(volume, 0.1)
   }
 
+  // Global pitch control
+  setGlobalPitch(semitones: number) {
+    this.globalPitch = Math.max(-12, Math.min(12, semitones))
+    if (this.pitchShift) {
+      this.pitchShift.pitch = this.globalPitch
+    }
+  }
+
+  getGlobalPitch(): number {
+    return this.globalPitch
+  }
+
   // Metering
   getMeterLevel(): number {
     if (!this.meter) return -Infinity
@@ -335,6 +364,11 @@ class AudioEngine {
   getWaveform(): Float32Array {
     if (!this.analyser) return new Float32Array(256)
     return this.analyser.getValue() as Float32Array
+  }
+
+  getFFTData(): Float32Array {
+    if (!this.fftAnalyser) return new Float32Array(64)
+    return this.fftAnalyser.getValue() as Float32Array
   }
 
   // Cleanup
@@ -360,8 +394,11 @@ class AudioEngine {
     this.masterGain?.dispose()
     this.meter?.dispose()
     this.analyser?.dispose()
+    this.fftAnalyser?.dispose()
+    this.pitchShift?.dispose()
 
     this.initialized = false
+    this.globalPitch = 0
   }
 }
 

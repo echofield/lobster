@@ -11,6 +11,8 @@ interface UseInstrumentEngineReturn {
   effects: EffectState;
   meterLevel: number;
   waveformData: Float32Array;
+  fftData: Float32Array;
+  globalPitch: number;
   activeNodeId: string | null;
   initAudio: () => Promise<void>;
   triggerSample: (nodeIndex: number) => void;
@@ -21,6 +23,7 @@ interface UseInstrumentEngineReturn {
     key: keyof EffectState[K],
     value: number
   ) => void;
+  setGlobalPitch: (semitones: number) => void;
 }
 
 export function useInstrumentEngine(
@@ -33,6 +36,8 @@ export function useInstrumentEngine(
   const [waveformData, setWaveformData] = useState<Float32Array>(
     new Float32Array(256)
   );
+  const [fftData, setFftData] = useState<Float32Array>(new Float32Array(64));
+  const [globalPitch, setGlobalPitchState] = useState(0);
   const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
   const animationRef = useRef<number>();
 
@@ -65,6 +70,8 @@ export function useInstrumentEngine(
     const updateVisuals = () => {
       const data = audioEngine.getWaveform();
       setWaveformData(data);
+      const fft = audioEngine.getFFTData();
+      setFftData(fft);
       const level = audioEngine.getMeterLevel();
       setMeterLevel(level);
       animationRef.current = requestAnimationFrame(updateVisuals);
@@ -77,6 +84,17 @@ export function useInstrumentEngine(
       }
     };
   }, [initialized]);
+
+  // Set global pitch
+  const setGlobalPitch = useCallback(
+    (semitones: number) => {
+      setGlobalPitchState(semitones);
+      if (initialized) {
+        audioEngine.setGlobalPitch(semitones);
+      }
+    },
+    [initialized]
+  );
 
   // Trigger a sample
   const triggerSample = useCallback(
@@ -152,11 +170,14 @@ export function useInstrumentEngine(
     effects,
     meterLevel,
     waveformData,
+    fftData,
+    globalPitch,
     activeNodeId,
     initAudio,
     triggerSample,
     loadSample,
     stopAll,
     updateEffect,
+    setGlobalPitch,
   };
 }

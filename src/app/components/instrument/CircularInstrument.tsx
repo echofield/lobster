@@ -9,6 +9,9 @@ import { FlowVisualizer } from './FlowVisualizer';
 import { SignalRing } from './SignalRing';
 import { SequencerOrbit } from './SequencerOrbit';
 import { InstrumentHUD } from './InstrumentHUD';
+import { BPMControl } from './BPMControl';
+import { PitchRing } from './PitchRing';
+import { FieldSignalMonitor } from './FieldSignalMonitor';
 import { useInstrumentEngine } from '@/app/hooks/useInstrumentEngine';
 import { useKeyboardTriggers } from '@/app/hooks/useKeyboardTriggers';
 import { useSequencer } from '@/app/hooks/useSequencer';
@@ -19,9 +22,10 @@ import type { InstrumentPack, EffectType } from '@/app/lib/instrument/types';
 
 interface CircularInstrumentProps {
   pack: InstrumentPack;
+  showFieldMonitor?: boolean;
 }
 
-export function CircularInstrument({ pack }: CircularInstrumentProps) {
+export function CircularInstrument({ pack, showFieldMonitor = true }: CircularInstrumentProps) {
   // Instrument dimensions
   const containerSize = 600;
   const centerX = containerSize / 2;
@@ -40,12 +44,15 @@ export function CircularInstrument({ pack }: CircularInstrumentProps) {
     effects,
     meterLevel,
     waveformData,
+    fftData,
+    globalPitch,
     activeNodeId,
     initAudio,
     triggerSample,
     loadSample,
     stopAll,
     updateEffect,
+    setGlobalPitch,
   } = useInstrumentEngine(pack.samples);
 
   // Sequencer hook
@@ -120,14 +127,19 @@ export function CircularInstrument({ pack }: CircularInstrumentProps) {
     ? samples[parseInt(activeNodeId)]?.label || null
     : null;
 
+  // Calculate activity level for field monitor
+  const activityLevel = Math.max(0, Math.min(1, (meterLevel + 60) / 60));
+
   return (
-    <div
-      className="relative"
-      style={{
-        width: containerSize,
-        height: containerSize,
-      }}
-    >
+    <div className="flex items-center gap-10">
+      {/* Main Instrument */}
+      <div
+        className="relative"
+        style={{
+          width: containerSize,
+          height: containerSize,
+        }}
+      >
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -193,7 +205,7 @@ export function CircularInstrument({ pack }: CircularInstrumentProps) {
         })}
       </svg>
 
-      {/* Flow Visualizer Layer */}
+      {/* Flow Visualizer Layer (with Meridian and Aura) */}
       <FlowVisualizer
         centerX={centerX}
         centerY={centerY}
@@ -202,6 +214,17 @@ export function CircularInstrument({ pack }: CircularInstrumentProps) {
         meterLevel={meterLevel}
         activeNodeId={activeNodeId}
         nodePositions={nodePositions}
+        globalPitch={globalPitch}
+        reverbMix={effects.reverb.mix}
+        masterVolume={effects.master.volume}
+      />
+
+      {/* Pitch Ring (between nodes and effects) */}
+      <PitchRing
+        centerX={centerX}
+        centerY={centerY}
+        pitch={globalPitch}
+        onPitchChange={setGlobalPitch}
       />
 
       {/* Sequencer Orbit Layer */}
@@ -250,8 +273,23 @@ export function CircularInstrument({ pack }: CircularInstrumentProps) {
         subtitle={pack.subtitle}
         isActive={activeNodeId !== null}
         isPlaying={sequencer.isPlaying}
+        tempo={sequencer.tempo}
         onClick={handleCoreClick}
       />
+
+      {/* BPM Control (bottom center) */}
+      <svg
+        className="absolute inset-0 pointer-events-none"
+        style={{ width: '100%', height: '100%' }}
+      >
+        <BPMControl
+          centerX={centerX}
+          centerY={centerY}
+          tempo={sequencer.tempo}
+          isPlaying={sequencer.isPlaying}
+          onTempoChange={setTempo}
+        />
+      </svg>
 
       {/* HUD Overlay */}
       <InstrumentHUD
@@ -261,6 +299,18 @@ export function CircularInstrument({ pack }: CircularInstrumentProps) {
         isPlaying={sequencer.isPlaying}
         initialized={initialized}
       />
+      </div>
+
+      {/* Field Signal Monitor (right panel) */}
+      {showFieldMonitor && (
+        <FieldSignalMonitor
+          fftData={fftData}
+          bpm={sequencer.tempo}
+          pitch={globalPitch}
+          activity={activityLevel}
+          isPlaying={sequencer.isPlaying}
+        />
+      )}
     </div>
   );
 }
