@@ -400,7 +400,7 @@ export function MemberAccessPage() {
             </p>
             {[
               { id: 'all', label: 'All Sounds', count: stats.total },
-              { id: 'pack', label: 'Sample Packs', count: stats.packs },
+              { id: 'pack', label: 'Collections', count: stats.packs },
               { id: 'single', label: 'Singles', count: stats.singles },
               { id: 'collection', label: 'Collections', count: stats.collections },
             ].map((item) => {
@@ -517,7 +517,7 @@ export function MemberAccessPage() {
             >
               <h1 className="text-3xl font-serif mb-2">
                 {activeFilter === 'all' ? 'Your Archive' :
-                 activeFilter === 'pack' ? 'Sample Packs' :
+                 activeFilter === 'pack' ? 'Sound Collections' :
                  activeFilter === 'single' ? 'Singles' : 'Collections'}
               </h1>
               <p className="text-sm text-[#1A1A1A]/40">

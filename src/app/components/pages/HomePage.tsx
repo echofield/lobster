@@ -31,7 +31,7 @@ export function HomePage() {
   // Navigation tabs with actual routes
   const tabs = [
     { label: 'ARCHIVE', path: '/access' },
-    { label: 'DROPS', path: '/access?filter=packs' },
+    { label: 'COLLECTIONS', path: '/access?filter=packs' },
     { label: 'INSTRUMENT', path: '/instrument' },
     { label: 'MEMBERSHIP', path: '/card' },
   ];
