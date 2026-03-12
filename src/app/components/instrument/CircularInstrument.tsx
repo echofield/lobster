@@ -217,6 +217,7 @@ export function CircularInstrument({ pack, showFieldMonitor = true }: CircularIn
         globalPitch={globalPitch}
         reverbMix={effects.reverb.mix}
         masterVolume={effects.master.volume}
+        bpm={sequencer.tempo}
       />
 
       {/* Pitch Ring (between nodes and effects) */}
@@ -298,6 +299,8 @@ export function CircularInstrument({ pack, showFieldMonitor = true }: CircularIn
         totalCount={samples.length}
         isPlaying={sequencer.isPlaying}
         initialized={initialized}
+        globalPitch={globalPitch}
+        musicalKey="D minor"
       />
       </div>
 

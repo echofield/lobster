@@ -40,10 +40,22 @@ export function MaterialNode({
   // Tactile press state
   const [isPressed, setIsPressed] = useState(false);
   const [showAfterglow, setShowAfterglow] = useState(false);
+  const [showCrystallization, setShowCrystallization] = useState(false);
+  const [wasLoaded, setWasLoaded] = useState(loaded);
 
   // Spring-animated scale for press effect
   const rawScale = useMotionValue(1);
   const smoothScale = useSpring(rawScale, INERTIA.snappy);
+
+  // Trigger crystallization animation when sample loads
+  useEffect(() => {
+    if (loaded && !wasLoaded) {
+      setShowCrystallization(true);
+      const timeout = setTimeout(() => setShowCrystallization(false), 800);
+      return () => clearTimeout(timeout);
+    }
+    setWasLoaded(loaded);
+  }, [loaded, wasLoaded]);
 
   // Trigger afterglow when node becomes active
   useEffect(() => {
@@ -127,6 +139,46 @@ export function MaterialNode({
         />
       )}
 
+      {/* Crystallization animation - plays when sample loads */}
+      {showCrystallization && (
+        <>
+          {/* Expanding crystal rings */}
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={i}
+              className="absolute pointer-events-none"
+              style={{
+                width: size,
+                height: size,
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                border: `1px solid ${COLORS.violet}`,
+                borderRadius: i === 0 ? '50%' : i === 1 ? '30%' : '10%',
+              }}
+              initial={{ scale: 0.5, opacity: 0.8, rotate: 0 }}
+              animate={{ scale: 1.8, opacity: 0, rotate: 45 * (i + 1) }}
+              transition={{ duration: 0.6, delay: i * 0.1, ease: 'easeOut' }}
+            />
+          ))}
+          {/* Inner flash */}
+          <motion.div
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              width: size * 0.8,
+              height: size * 0.8,
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: `radial-gradient(circle, ${COLORS.violet} 0%, transparent 70%)`,
+            }}
+            initial={{ scale: 0, opacity: 1 }}
+            animate={{ scale: 2, opacity: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+          />
+        </>
+      )}
+
       {/* Node container */}
       <div
         className="relative rounded-full flex items-center justify-center"
@@ -196,15 +248,13 @@ export function MaterialNode({
             ))}
           </div>
         ) : (
-          // Empty state - subtle plus
-          <div
-            className="w-4 h-4 flex items-center justify-center"
-            style={{ color: `${COLORS.ink}30` }}
+          // Empty state - show material name
+          <span
+            className="text-[7px] tracking-[0.05em] uppercase font-medium text-center leading-tight px-1"
+            style={{ color: `${COLORS.ink}40` }}
           >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1" />
-            </svg>
-          </div>
+            {label.length > 6 ? label.slice(0, 6) : label}
+          </span>
         )}
       </div>
 

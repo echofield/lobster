@@ -24,6 +24,7 @@ interface FlowVisualizerProps {
   globalPitch?: number; // -12 to +12 semitones
   reverbMix?: number; // 0 to 1
   masterVolume?: number; // 0 to 100
+  bpm?: number; // BPM for aura breathing sync
 }
 
 export function FlowVisualizer({
@@ -37,7 +38,10 @@ export function FlowVisualizer({
   globalPitch = 0,
   reverbMix = 0,
   masterVolume = 80,
+  bpm = 120,
 }: FlowVisualizerProps) {
+  // Calculate breathing duration synced to BPM (one breath per 4 beats)
+  const breathDuration = (60 / bpm) * 4;
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const rippleIdRef = useRef(0);
 
@@ -235,7 +239,7 @@ export function FlowVisualizer({
         }}
       />
 
-      {/* Aura - Outer energy glow */}
+      {/* Aura - Outer energy glow, breathing synced to BPM */}
       <motion.circle
         cx={centerX}
         cy={centerY}
@@ -244,20 +248,20 @@ export function FlowVisualizer({
         stroke={COLORS.violet}
         strokeWidth={4 + auraExpansion * 0.5}
         animate={{
-          r: radius + 10 + auraExpansion,
-          strokeOpacity: 0.02 + auraIntensity * 0.08,
+          r: [radius + 10 + auraExpansion, radius + 14 + auraExpansion, radius + 10 + auraExpansion],
+          strokeOpacity: [0.02 + auraIntensity * 0.08, 0.05 + auraIntensity * 0.1, 0.02 + auraIntensity * 0.08],
         }}
         transition={{
-          type: 'spring',
-          stiffness: 100,
-          damping: 20,
+          duration: breathDuration,
+          repeat: Infinity,
+          ease: 'easeInOut',
         }}
         style={{
           filter: `blur(${2 + auraExpansion * 0.3}px)`,
         }}
       />
 
-      {/* Secondary aura ring */}
+      {/* Secondary aura ring - offset phase */}
       <motion.circle
         cx={centerX}
         cy={centerY}
@@ -266,13 +270,14 @@ export function FlowVisualizer({
         stroke={COLORS.violet}
         strokeWidth={2}
         animate={{
-          r: radius + 5 + auraExpansion * 0.6,
-          strokeOpacity: 0.03 + auraIntensity * 0.05,
+          r: [radius + 5 + auraExpansion * 0.6, radius + 8 + auraExpansion * 0.6, radius + 5 + auraExpansion * 0.6],
+          strokeOpacity: [0.03 + auraIntensity * 0.05, 0.06 + auraIntensity * 0.07, 0.03 + auraIntensity * 0.05],
         }}
         transition={{
-          type: 'spring',
-          stiffness: 120,
-          damping: 18,
+          duration: breathDuration,
+          repeat: Infinity,
+          ease: 'easeInOut',
+          delay: breathDuration / 4,
         }}
       />
     </svg>

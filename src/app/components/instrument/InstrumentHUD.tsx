@@ -9,6 +9,8 @@ interface InstrumentHUDProps {
   totalCount: number;
   isPlaying: boolean;
   initialized: boolean;
+  globalPitch?: number;
+  musicalKey?: string;
 }
 
 export function InstrumentHUD({
@@ -17,6 +19,8 @@ export function InstrumentHUD({
   totalCount,
   isPlaying,
   initialized,
+  globalPitch = 0,
+  musicalKey = 'D minor',
 }: InstrumentHUDProps) {
   return (
     <>
@@ -44,13 +48,52 @@ export function InstrumentHUD({
         </span>
       </div>
 
-      {/* Top-right: Sample count */}
-      <div className="absolute top-4 right-4">
+      {/* Top-right: KEY and TRANSPOSE indicators */}
+      <div className="absolute top-4 right-4 flex items-center gap-6">
+        {/* Musical Key */}
+        <div className="flex items-center gap-2">
+          <span
+            className="text-[7px] tracking-[0.15em] uppercase"
+            style={{ color: `${COLORS.ink}25` }}
+          >
+            Key
+          </span>
+          <span
+            className="text-[9px] tracking-[0.05em] font-medium"
+            style={{ color: `${COLORS.violet}80` }}
+          >
+            {musicalKey}
+          </span>
+        </div>
+
+        {/* Transpose indicator */}
+        <div className="flex items-center gap-2">
+          <span
+            className="text-[7px] tracking-[0.15em] uppercase"
+            style={{ color: `${COLORS.ink}25` }}
+          >
+            Transpose
+          </span>
+          <motion.span
+            className="text-[9px] tracking-[0.05em] font-medium"
+            style={{
+              color: globalPitch !== 0 ? COLORS.violet : `${COLORS.ink}40`,
+            }}
+            animate={{
+              opacity: globalPitch !== 0 ? [0.8, 1, 0.8] : 1,
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            {globalPitch > 0 ? `+${globalPitch}` : globalPitch === 0 ? '0' : globalPitch}
+          </motion.span>
+        </div>
+
+        {/* Sample count - subtle */}
         <span
-          className="text-[8px] tracking-[0.1em] uppercase"
-          style={{ color: `${COLORS.ink}30` }}
+          className="text-[7px] tracking-[0.1em] uppercase"
+          style={{ color: `${COLORS.ink}20` }}
         >
-          {loadedCount}/{totalCount} Loaded
+          {loadedCount}/{totalCount}
         </span>
       </div>
 
