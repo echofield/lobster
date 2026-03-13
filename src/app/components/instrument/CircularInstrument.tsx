@@ -132,33 +132,43 @@ export function CircularInstrument({ pack, showFieldMonitor = true }: CircularIn
   const activityLevel = Math.max(0, Math.min(1, (meterLevel + 60) / 60));
 
   return (
-    <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
-      {/* Main Instrument - responsive via CSS scale */}
+    <div className="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10 w-full">
+      {/* Scaling wrapper for mobile */}
       <div
-        className="relative instrument-container"
+        className="flex items-center justify-center"
         style={{
-          width: containerSize,
-          height: containerSize,
+          // Mobile: scale down to fit screen
+          // The instrument is 600px, we scale it to fit viewport
+          width: 'min(100vw - 32px, 600px)',
+          height: 'min(100vw - 32px, 600px)',
         }}
       >
-        <style>{`
-          .instrument-container {
-            transform-origin: center center;
-          }
-          @media (max-width: 639px) {
-            .instrument-container {
-              transform: scale(0.55);
-              margin: -135px;
+        {/* Main Instrument - fixed size, scaled via container */}
+        <div
+          className="relative flex-shrink-0"
+          style={{
+            width: containerSize,
+            height: containerSize,
+            transform: 'scale(var(--instrument-scale, 1))',
+            transformOrigin: 'center center',
+          }}
+        >
+          <style>{`
+            :root {
+              --instrument-scale: 1;
             }
-          }
-          @media (min-width: 640px) and (max-width: 767px) {
-            .instrument-container {
-              transform: scale(0.75);
-              margin: -75px;
+            @media (max-width: 480px) {
+              :root { --instrument-scale: 0.52; }
             }
-          }
-        `}</style>
-      {/* Hidden file input */}
+            @media (min-width: 481px) and (max-width: 640px) {
+              :root { --instrument-scale: 0.65; }
+            }
+            @media (min-width: 641px) and (max-width: 768px) {
+              :root { --instrument-scale: 0.8; }
+            }
+          `}</style>
+
+          {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"
@@ -321,6 +331,7 @@ export function CircularInstrument({ pack, showFieldMonitor = true }: CircularIn
         globalPitch={globalPitch}
         musicalKey="D minor"
       />
+        </div>
       </div>
 
       {/* Field Signal Monitor (right panel) - hidden on mobile via CSS */}

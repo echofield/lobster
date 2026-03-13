@@ -57,7 +57,7 @@ export function InstrumentPage() {
       </motion.nav>
 
       {/* Main Content */}
-      <div className="min-h-screen flex items-center justify-center px-2 md:px-4 py-16 md:py-24 overflow-hidden">
+      <div className="min-h-screen flex items-center justify-center px-4 py-20 md:py-24 overflow-hidden">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}

@@ -56,8 +56,8 @@ export function HomePage() {
         />
       </div>
 
-      {/* Floating geometric shapes */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      {/* Floating geometric shapes - hidden on mobile */}
+      <div className="hidden md:block fixed inset-0 pointer-events-none overflow-hidden">
         {/* Rotating triangle - top left */}
         <motion.div
           animate={{ rotate: 360 }}
@@ -135,7 +135,7 @@ export function HomePage() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vmin] h-[85vmin] md:w-[70vmin] md:h-[70vmin] rounded-full border border-[#1A1A1A]/10 relative"
+            className="w-[70vmin] h-[70vmin] sm:w-[75vmin] sm:h-[75vmin] md:w-[70vmin] md:h-[70vmin] rounded-full border border-[#1A1A1A]/10 relative"
             style={{
               transform: `translate(${(mousePos.x - 0.5) * 10}px, ${(mousePos.y - 0.5) * 10}px)`,
               boxShadow: '0 0 80px rgba(139, 92, 246, 0.08), 0 0 160px rgba(167, 139, 250, 0.05)'
@@ -181,7 +181,7 @@ export function HomePage() {
                 <motion.div
                   animate={{ rotate: isPlaying ? 45 : 0 }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  className="w-28 h-28 relative"
+                  className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 relative"
                   style={{
                     border: isPlaying ? '1px solid rgba(139, 92, 246, 0.5)' : '1px solid rgba(26, 26, 26, 0.2)',
                     boxShadow: isPlaying
@@ -439,7 +439,7 @@ export function HomePage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.8, duration: 1 }}
-          className="absolute bottom-20 md:bottom-32 left-1/2 -translate-x-1/2 text-center"
+          className="absolute bottom-24 sm:bottom-28 md:bottom-32 left-1/2 -translate-x-1/2 text-center z-10"
         >
           <Link
             to="/card"
@@ -458,12 +458,12 @@ export function HomePage() {
           </Link>
         </motion.div>
 
-        {/* Edition Counter - Bottom left (hidden on small mobile) */}
+        {/* Edition Counter - Bottom left (hidden on mobile) */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2, duration: 1 }}
-          className="hidden sm:block absolute bottom-8 left-4 md:left-8 text-xs"
+          className="hidden md:block absolute bottom-8 left-8 text-xs"
         >
           <span className="opacity-40 tracking-[0.1em]">FOUNDING EDITION</span>
           <div className="mt-1 font-serif text-lg">
@@ -471,12 +471,12 @@ export function HomePage() {
           </div>
         </motion.div>
 
-        {/* Diamond - Bottom right */}
+        {/* Diamond - Bottom right (hidden on mobile) */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2, duration: 1 }}
-          className="absolute bottom-8 right-8"
+          className="hidden md:block absolute bottom-8 right-8"
         >
           <div className="w-3 h-3 border border-[#1A1A1A]/30 rotate-45" />
         </motion.div>
