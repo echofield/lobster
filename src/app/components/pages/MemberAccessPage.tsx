@@ -379,7 +379,7 @@ export function MemberAccessPage() {
       </AnimatePresence>
 
       {/* Main Layout - Sidebar hidden on mobile */}
-      <div className="flex min-h-screen">
+      <div className="flex flex-col md:flex-row min-h-screen">
         {/* Left Sidebar - hidden on mobile */}
         <motion.aside
           initial={{ opacity: 0, x: -20 }}
@@ -463,7 +463,7 @@ export function MemberAccessPage() {
         </motion.aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 w-full overflow-auto">
           {/* Header with Search */}
           <motion.header
             initial={{ opacity: 0, y: -10 }}

@@ -1,7 +1,7 @@
 // CircularInstrument - Main orchestration component
 // Composes all instrument layers into the circular sampler
 
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { InstrumentCore } from './InstrumentCore';
 import { MaterialNode } from './MaterialNode';
@@ -131,43 +131,50 @@ export function CircularInstrument({ pack, showFieldMonitor = true }: CircularIn
   // Calculate activity level for field monitor
   const activityLevel = Math.max(0, Math.min(1, (meterLevel + 60) / 60));
 
+  // Calculate scale based on viewport - needs to fit 600px instrument
+  // On mobile, we scale down to fit within viewport minus padding
+  const getScale = () => {
+    if (typeof window === 'undefined') return 1;
+    const vw = window.innerWidth;
+    if (vw < 400) return 0.48;
+    if (vw < 500) return 0.55;
+    if (vw < 640) return 0.65;
+    if (vw < 768) return 0.8;
+    return 1;
+  };
+
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const updateScale = () => setScale(getScale());
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, []);
+
+  // Scaled dimensions for container sizing
+  const scaledSize = containerSize * scale;
+
   return (
     <div className="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10 w-full">
-      {/* Scaling wrapper for mobile */}
+      {/* Scaling wrapper - uses actual scaled dimensions */}
       <div
-        className="flex items-center justify-center"
+        className="flex items-center justify-center overflow-visible"
         style={{
-          // Mobile: scale down to fit screen
-          // The instrument is 600px, we scale it to fit viewport
-          width: 'min(100vw - 32px, 600px)',
-          height: 'min(100vw - 32px, 600px)',
+          width: scaledSize,
+          height: scaledSize,
         }}
       >
-        {/* Main Instrument - fixed size, scaled via container */}
+        {/* Main Instrument - fixed internal coordinates, scaled via transform */}
         <div
           className="relative flex-shrink-0"
           style={{
             width: containerSize,
             height: containerSize,
-            transform: 'scale(var(--instrument-scale, 1))',
+            transform: `scale(${scale})`,
             transformOrigin: 'center center',
           }}
         >
-          <style>{`
-            :root {
-              --instrument-scale: 1;
-            }
-            @media (max-width: 480px) {
-              :root { --instrument-scale: 0.52; }
-            }
-            @media (min-width: 481px) and (max-width: 640px) {
-              :root { --instrument-scale: 0.65; }
-            }
-            @media (min-width: 641px) and (max-width: 768px) {
-              :root { --instrument-scale: 0.8; }
-            }
-          `}</style>
-
           {/* Hidden file input */}
       <input
         ref={fileInputRef}

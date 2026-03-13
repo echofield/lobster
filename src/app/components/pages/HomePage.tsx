@@ -257,18 +257,18 @@ export function HomePage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.2 }}
-                className="space-y-1"
+                className="space-y-0.5 sm:space-y-1"
               >
-                <p className="text-sm font-medium tracking-wide">{previewTracks[currentTrack].name}</p>
-                <p className="text-xs opacity-40">{previewTracks[currentTrack].drop}</p>
+                <p className="text-xs sm:text-sm font-medium tracking-wide">{previewTracks[currentTrack].name}</p>
+                <p className="text-[10px] sm:text-xs opacity-40">{previewTracks[currentTrack].drop}</p>
               </motion.div>
 
-              {/* Abstract ARCHÉ-inspired signal visualization - IMPROVED */}
+              {/* Abstract ARCHÉ-inspired signal visualization - hidden on mobile */}
               {isPlaying && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="mt-6 w-40 h-12 relative mx-auto"
+                  className="hidden sm:block mt-6 w-40 h-12 relative mx-auto"
                 >
                   <svg viewBox="0 0 160 48" className="w-full h-full">
                     {/* Horizontal baseline */}
@@ -349,12 +349,12 @@ export function HomePage() {
               )}
             </div>
 
-            {/* Poetic Text - Bottom of circle */}
+            {/* Poetic Text - Bottom of circle (hidden on mobile to prevent overlap) */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1, duration: 1 }}
-              className="absolute bottom-[15%] left-1/2 -translate-x-1/2 text-center"
+              className="hidden sm:block absolute bottom-[15%] left-1/2 -translate-x-1/2 text-center"
             >
               <p className="font-serif italic text-lg opacity-30 tracking-wide">
                 Sound is access
