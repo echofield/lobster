@@ -7,6 +7,7 @@ import {
   ThankYouPage,
   AboutPage,
   InstrumentPage,
+  ForgePage,
 } from "./components/pages";
 import { Toaster } from "./components/ui/sonner";
 
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
       { path: "drop/:id", Component: DropPage },
       { path: "thank-you", Component: ThankYouPage },
       { path: "instrument", Component: InstrumentPage },
+      { path: "forge", Component: ForgePage },
     ],
   },
 ]);
