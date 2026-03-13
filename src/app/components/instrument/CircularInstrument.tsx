@@ -26,7 +26,7 @@ interface CircularInstrumentProps {
 }
 
 export function CircularInstrument({ pack, showFieldMonitor = true }: CircularInstrumentProps) {
-  // Instrument dimensions
+  // Instrument dimensions - fixed internal coordinate system, scaled via CSS
   const containerSize = 600;
   const centerX = containerSize / 2;
   const centerY = containerSize / 2;
@@ -47,6 +47,7 @@ export function CircularInstrument({ pack, showFieldMonitor = true }: CircularIn
     fftData,
     globalPitch,
     activeNodeId,
+    triggerCounts,
     initAudio,
     triggerSample,
     loadSample,
@@ -131,15 +132,32 @@ export function CircularInstrument({ pack, showFieldMonitor = true }: CircularIn
   const activityLevel = Math.max(0, Math.min(1, (meterLevel + 60) / 60));
 
   return (
-    <div className="flex items-center gap-10">
-      {/* Main Instrument */}
+    <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
+      {/* Main Instrument - responsive via CSS scale */}
       <div
-        className="relative"
+        className="relative instrument-container"
         style={{
           width: containerSize,
           height: containerSize,
         }}
       >
+        <style>{`
+          .instrument-container {
+            transform-origin: center center;
+          }
+          @media (max-width: 639px) {
+            .instrument-container {
+              transform: scale(0.55);
+              margin: -135px;
+            }
+          }
+          @media (min-width: 640px) and (max-width: 767px) {
+            .instrument-container {
+              transform: scale(0.75);
+              margin: -75px;
+            }
+          }
+        `}</style>
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -261,6 +279,7 @@ export function CircularInstrument({ pack, showFieldMonitor = true }: CircularIn
           isActive={activeNodeId === sample.id}
           isHovered={hoveredNodeId === sample.id}
           waveformData={sample.waveformData}
+          triggerCount={triggerCounts[sample.id] || 0}
           onClick={() => handleNodeClick(index)}
           onHover={(hovered) =>
             setHoveredNodeId(hovered ? sample.id : null)
@@ -304,15 +323,17 @@ export function CircularInstrument({ pack, showFieldMonitor = true }: CircularIn
       />
       </div>
 
-      {/* Field Signal Monitor (right panel) */}
+      {/* Field Signal Monitor (right panel) - hidden on mobile via CSS */}
       {showFieldMonitor && (
-        <FieldSignalMonitor
-          fftData={fftData}
-          bpm={sequencer.tempo}
-          pitch={globalPitch}
-          activity={activityLevel}
-          isPlaying={sequencer.isPlaying}
-        />
+        <div className="hidden lg:block">
+          <FieldSignalMonitor
+            fftData={fftData}
+            bpm={sequencer.tempo}
+            pitch={globalPitch}
+            activity={activityLevel}
+            isPlaying={sequencer.isPlaying}
+          />
+        </div>
       )}
     </div>
   );

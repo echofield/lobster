@@ -16,6 +16,7 @@ interface MaterialNodeProps {
   isHovered: boolean;
   waveformData: number[] | null;
   pitch?: number; // Per-node pitch offset
+  triggerCount?: number; // Erosion: how many times this node has been triggered
   onClick: () => void;
   onHover: (hovered: boolean) => void;
 }
@@ -32,10 +33,20 @@ export function MaterialNode({
   isHovered,
   waveformData,
   pitch = 0,
+  triggerCount = 0,
   onClick,
   onHover,
 }: MaterialNodeProps) {
   const size = GEOMETRY.nodeRadius * 2;
+
+  // Erosion states based on usage
+  // 0-5 triggers: pristine/crystalline
+  // 6-20 triggers: light wear
+  // 21-50 triggers: medium wear
+  // 50+: well-worn
+  const erosionLevel = Math.min(3, Math.floor(triggerCount / 15));
+  const erosionOpacity = Math.min(0.15, triggerCount * 0.003);
+  const hasErosion = triggerCount > 5 && loaded;
 
   // Tactile press state
   const [isPressed, setIsPressed] = useState(false);
@@ -103,6 +114,45 @@ export function MaterialNode({
       }}
       transition={{ duration: 0.2 }}
     >
+      {/* Erosion rings - subtle wear marks from heavy use */}
+      {hasErosion && (
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            width: size * 1.3,
+            height: size * 1.3,
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
+          {/* Worn rings - more rings = more use */}
+          {Array.from({ length: erosionLevel }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                width: `${100 - i * 15}%`,
+                height: `${100 - i * 15}%`,
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                border: `0.5px solid ${COLORS.violet}`,
+                opacity: erosionOpacity * (1 - i * 0.3),
+              }}
+              animate={{
+                rotate: [0, 360 * (i % 2 === 0 ? 1 : -1)],
+              }}
+              transition={{
+                duration: 60 + i * 20,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            />
+          ))}
+        </div>
+      )}
+
       {/* Outer glow on active */}
       {isActive && (
         <motion.div

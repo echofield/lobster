@@ -378,14 +378,14 @@ export function MemberAccessPage() {
         )}
       </AnimatePresence>
 
-      {/* Main Layout - Spotify-like with sidebar */}
+      {/* Main Layout - Sidebar hidden on mobile */}
       <div className="flex min-h-screen">
-        {/* Left Sidebar */}
+        {/* Left Sidebar - hidden on mobile */}
         <motion.aside
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: isReady ? 1 : 0, x: isReady ? 0 : -20 }}
           transition={{ duration: 0.6 }}
-          className="w-64 border-r border-[#1A1A1A]/5 p-6 flex flex-col"
+          className="hidden md:flex w-64 border-r border-[#1A1A1A]/5 p-6 flex-col"
         >
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 mb-10">
@@ -469,9 +469,20 @@ export function MemberAccessPage() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: isReady ? 1 : 0, y: isReady ? 0 : -10 }}
             transition={{ duration: 0.6 }}
-            className="sticky top-0 z-10 bg-[#FAF8F2]/90 backdrop-blur-sm border-b border-[#1A1A1A]/5 px-8 py-4"
+            className="sticky top-0 z-10 bg-[#FAF8F2]/90 backdrop-blur-sm border-b border-[#1A1A1A]/5 px-4 md:px-8 py-4"
           >
-            <div className="flex items-center justify-between gap-6">
+            {/* Mobile: Logo + Back */}
+            <div className="flex md:hidden items-center justify-between mb-4">
+              <Link to="/" className="flex items-center gap-2">
+                <div className="w-4 h-4 border border-[#1A1A1A]/30 rotate-45" />
+                <span className="text-[10px] tracking-[0.15em] uppercase opacity-50">Lobster</span>
+              </Link>
+              <Link to="/instrument" className="text-[10px] tracking-[0.1em] uppercase opacity-40">
+                Instrument
+              </Link>
+            </div>
+
+            <div className="flex items-center justify-between gap-4 md:gap-6">
               {/* Search */}
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1A1A1A]/30" />
@@ -479,13 +490,13 @@ export function MemberAccessPage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search sounds..."
+                  placeholder="Search..."
                   className="w-full pl-10 pr-4 py-2.5 bg-[#1A1A1A]/5 border-none text-sm placeholder:text-[#1A1A1A]/30 focus:outline-none focus:ring-1 focus:ring-[#8B5CF6]/30"
                 />
               </div>
 
-              {/* View Toggle */}
-              <div className="flex items-center gap-2 p-1 bg-[#1A1A1A]/5">
+              {/* View Toggle - hidden on mobile */}
+              <div className="hidden sm:flex items-center gap-2 p-1 bg-[#1A1A1A]/5">
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`p-2 transition-colors ${
@@ -504,30 +515,51 @@ export function MemberAccessPage() {
                 </button>
               </div>
             </div>
+
+            {/* Mobile: Filter tabs */}
+            <div className="flex md:hidden gap-4 mt-4 overflow-x-auto pb-2 -mx-4 px-4">
+              {[
+                { id: 'all', label: 'All' },
+                { id: 'pack', label: 'Packs' },
+                { id: 'single', label: 'Singles' },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleFilterChange(item.id as FilterType)}
+                  className={`text-[10px] tracking-[0.1em] uppercase whitespace-nowrap px-3 py-1.5 transition-all ${
+                    activeFilter === item.id
+                      ? 'bg-[#8B5CF6]/10 text-[#8B5CF6]'
+                      : 'text-[#1A1A1A]/40'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
           </motion.header>
 
           {/* Content Area */}
-          <div className="p-8">
+          <div className="p-4 md:p-8">
             {/* Section Header */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: isReady ? 1 : 0, y: isReady ? 0 : 20 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="mb-8"
+              className="mb-6 md:mb-8"
             >
-              <h1 className="text-3xl font-serif mb-2">
+              <h1 className="text-2xl md:text-3xl font-serif mb-1 md:mb-2">
                 {activeFilter === 'all' ? 'Your Archive' :
                  activeFilter === 'pack' ? 'Sound Collections' :
                  activeFilter === 'single' ? 'Singles' : 'Collections'}
               </h1>
-              <p className="text-sm text-[#1A1A1A]/40">
-                {filteredDrops.length} {filteredDrops.length === 1 ? 'item' : 'items'} · {stats.totalTracks} total signals
+              <p className="text-xs md:text-sm text-[#1A1A1A]/40">
+                {filteredDrops.length} {filteredDrops.length === 1 ? 'item' : 'items'} · {stats.totalTracks} signals
               </p>
             </motion.div>
 
             {/* Drops Grid/List */}
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
                 {filteredDrops.map((drop, i) => (
                   <DropCard
                     key={drop.id}

@@ -38,38 +38,38 @@ export function InstrumentPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="fixed top-0 left-0 right-0 z-50 px-8 py-6 flex justify-between items-center"
+        className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 md:py-6 flex justify-between items-center"
       >
         <Link
           to="/"
-          className="flex items-center gap-3 text-xs tracking-[0.15em] uppercase opacity-50 hover:opacity-100 transition-opacity duration-300"
+          className="flex items-center gap-2 text-[10px] md:text-xs tracking-[0.15em] uppercase opacity-50 hover:opacity-100 transition-opacity duration-300"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Return
+          <ArrowLeft className="w-3 md:w-4 h-3 md:h-4" />
+          <span className="hidden sm:inline">Return</span>
         </Link>
 
-        <div className="flex items-center gap-3">
-          <div className="w-3 h-3 border border-[#1A1A1A]/20 rotate-45" />
-          <span className="text-[10px] tracking-[0.2em] uppercase opacity-40">
-            Member Instrument
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="w-2.5 md:w-3 h-2.5 md:h-3 border border-[#1A1A1A]/20 rotate-45" />
+          <span className="text-[8px] md:text-[10px] tracking-[0.2em] uppercase opacity-40">
+            Instrument
           </span>
         </div>
       </motion.nav>
 
       {/* Main Content */}
-      <div className="min-h-screen flex items-center justify-center px-4 py-24">
+      <div className="min-h-screen flex items-center justify-center px-2 md:px-4 py-16 md:py-24 overflow-hidden">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
           className="relative"
         >
-          {/* Instrument title - above the circle */}
+          {/* Instrument title - above the circle (hidden on mobile) */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-center mb-8"
+            className="hidden md:block text-center mb-8"
           >
             <span className="text-[9px] tracking-[0.3em] uppercase text-[#1A1A1A]/30">
               Sound Laboratory
@@ -77,46 +77,46 @@ export function InstrumentPage() {
           </motion.div>
 
           {/* The Circular Instrument */}
-          <CircularInstrument pack={sedimentFlowPack} />
+          <CircularInstrument pack={sedimentFlowPack} showFieldMonitor={false} />
 
           {/* Subtle footer text */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
-            className="text-center mt-8"
+            className="text-center mt-4 md:mt-8 px-4"
           >
-            <p className="text-[9px] tracking-[0.15em] uppercase text-[#1A1A1A]/20">
-              Click nodes to load samples · Drag arcs to shape sound
+            <p className="text-[8px] md:text-[9px] tracking-[0.1em] md:tracking-[0.15em] uppercase text-[#1A1A1A]/20">
+              Click nodes to load samples
             </p>
           </motion.div>
         </motion.div>
       </div>
 
-      {/* Corner ornaments - manuscript style */}
-      <div className="fixed top-8 left-8 w-8 h-8 pointer-events-none">
+      {/* Corner ornaments - hidden on mobile */}
+      <div className="hidden md:block fixed top-8 left-8 w-8 h-8 pointer-events-none">
         <svg width="32" height="32" viewBox="0 0 32 32" className="opacity-[0.08]">
           <path d="M0 0 L16 0 L16 2 L2 2 L2 16 L0 16 Z" fill="#1A1A1A" />
         </svg>
       </div>
-      <div className="fixed top-8 right-8 w-8 h-8 pointer-events-none">
+      <div className="hidden md:block fixed top-8 right-8 w-8 h-8 pointer-events-none">
         <svg width="32" height="32" viewBox="0 0 32 32" className="opacity-[0.08]">
           <path d="M32 0 L16 0 L16 2 L30 2 L30 16 L32 16 Z" fill="#1A1A1A" />
         </svg>
       </div>
-      <div className="fixed bottom-8 left-8 w-8 h-8 pointer-events-none">
+      <div className="hidden md:block fixed bottom-8 left-8 w-8 h-8 pointer-events-none">
         <svg width="32" height="32" viewBox="0 0 32 32" className="opacity-[0.08]">
           <path d="M0 32 L16 32 L16 30 L2 30 L2 16 L0 16 Z" fill="#1A1A1A" />
         </svg>
       </div>
-      <div className="fixed bottom-8 right-8 w-8 h-8 pointer-events-none">
+      <div className="hidden md:block fixed bottom-8 right-8 w-8 h-8 pointer-events-none">
         <svg width="32" height="32" viewBox="0 0 32 32" className="opacity-[0.08]">
           <path d="M32 32 L16 32 L16 30 L30 30 L30 16 L32 16 Z" fill="#1A1A1A" />
         </svg>
       </div>
 
-      {/* Central diamond marker */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 pointer-events-none">
+      {/* Central diamond marker - hidden on mobile */}
+      <div className="hidden md:block fixed bottom-6 left-1/2 -translate-x-1/2 pointer-events-none">
         <div className="w-2 h-2 border border-[#1A1A1A]/15 rotate-45" />
       </div>
     </div>

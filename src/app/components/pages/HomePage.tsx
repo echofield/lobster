@@ -107,13 +107,13 @@ export function HomePage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5, duration: 1 }}
-        className="fixed top-0 left-0 right-0 z-50 px-8 py-6 flex justify-between items-center"
+        className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 md:py-6 flex justify-between items-center"
       >
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-5 h-5 border border-[#1A1A1A]/30 rotate-45" />
-          <span className="text-xs tracking-[0.2em] uppercase opacity-60">Lobster Sound</span>
+          <div className="w-4 md:w-5 h-4 md:h-5 border border-[#1A1A1A]/30 rotate-45" />
+          <span className="text-[10px] md:text-xs tracking-[0.2em] uppercase opacity-60">Lobster</span>
         </Link>
-        <div className="flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-6">
           <Link to="/access" className="text-xs tracking-[0.15em] uppercase opacity-40 hover:opacity-100 transition-opacity">
             Archive
           </Link>
@@ -130,12 +130,12 @@ export function HomePage() {
       <div className="flex-1 flex items-center justify-center relative">
         {/* THE CIRCLE - Massive focal element */}
         <div className="relative">
-          {/* Outer Ring */}
+          {/* Outer Ring - smaller on mobile */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[70vmin] h-[70vmin] rounded-full border border-[#1A1A1A]/10 relative"
+            className="w-[85vmin] h-[85vmin] md:w-[70vmin] md:h-[70vmin] rounded-full border border-[#1A1A1A]/10 relative"
             style={{
               transform: `translate(${(mousePos.x - 0.5) * 10}px, ${(mousePos.y - 0.5) * 10}px)`,
               boxShadow: '0 0 80px rgba(139, 92, 246, 0.08), 0 0 160px rgba(167, 139, 250, 0.05)'
@@ -362,12 +362,12 @@ export function HomePage() {
             </motion.div>
           </motion.div>
 
-          {/* Floating Cube - Right side with subtle animation */}
+          {/* Floating Cube - Right side (hidden on mobile) */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 1.5, duration: 1 }}
-            className="absolute right-[-80px] top-1/2 -translate-y-1/2"
+            className="hidden md:block absolute right-[-80px] top-1/2 -translate-y-1/2"
           >
             <motion.svg
               width="60"
@@ -395,12 +395,12 @@ export function HomePage() {
             </motion.svg>
           </motion.div>
 
-          {/* Track Selector - Left side */}
+          {/* Track Selector - Left side (hidden on mobile) */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 1.5, duration: 1 }}
-            className="absolute left-[-100px] top-1/2 -translate-y-1/2 space-y-4"
+            className="hidden md:block absolute left-[-100px] top-1/2 -translate-y-1/2 space-y-4"
           >
             {previewTracks.map((track, i) => (
               <button
@@ -439,7 +439,7 @@ export function HomePage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.8, duration: 1 }}
-          className="absolute bottom-32 left-1/2 -translate-x-1/2 text-center"
+          className="absolute bottom-20 md:bottom-32 left-1/2 -translate-x-1/2 text-center"
         >
           <Link
             to="/card"
@@ -458,12 +458,12 @@ export function HomePage() {
           </Link>
         </motion.div>
 
-        {/* Edition Counter - Bottom left */}
+        {/* Edition Counter - Bottom left (hidden on small mobile) */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2, duration: 1 }}
-          className="absolute bottom-8 left-8 text-xs"
+          className="hidden sm:block absolute bottom-8 left-4 md:left-8 text-xs"
         >
           <span className="opacity-40 tracking-[0.1em]">FOUNDING EDITION</span>
           <div className="mt-1 font-serif text-lg">
@@ -487,13 +487,13 @@ export function HomePage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.8, duration: 0.8 }}
-        className="pb-8 flex justify-center gap-8"
+        className="pb-6 md:pb-8 flex justify-center gap-4 md:gap-8 px-4"
       >
         {tabs.map((tab, i) => (
           <Link
             key={tab.label}
             to={tab.path}
-            className="text-[10px] tracking-[0.15em] uppercase transition-all duration-300 relative opacity-40 hover:opacity-100"
+            className="text-[9px] md:text-[10px] tracking-[0.1em] md:tracking-[0.15em] uppercase transition-all duration-300 relative opacity-40 hover:opacity-100"
             onMouseEnter={() => setActiveTab(i)}
             style={{
               color: activeTab === i ? '#8B5CF6' : undefined,

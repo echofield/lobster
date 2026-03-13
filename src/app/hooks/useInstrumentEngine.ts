@@ -14,6 +14,7 @@ interface UseInstrumentEngineReturn {
   fftData: Float32Array;
   globalPitch: number;
   activeNodeId: string | null;
+  triggerCounts: Record<string, number>; // Erosion: track usage per node
   initAudio: () => Promise<void>;
   triggerSample: (nodeIndex: number) => void;
   loadSample: (nodeIndex: number, file: File) => Promise<void>;
@@ -39,6 +40,7 @@ export function useInstrumentEngine(
   const [fftData, setFftData] = useState<Float32Array>(new Float32Array(64));
   const [globalPitch, setGlobalPitchState] = useState(0);
   const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
+  const [triggerCounts, setTriggerCounts] = useState<Record<string, number>>({});
   const animationRef = useRef<number>();
 
   // Initialize audio engine
@@ -105,6 +107,12 @@ export function useInstrumentEngine(
       audioEngine.triggerPad(sample.id);
       setActiveNodeId(sample.id);
       setTimeout(() => setActiveNodeId(null), 150);
+
+      // Erosion: increment trigger count for this node
+      setTriggerCounts((prev) => ({
+        ...prev,
+        [sample.id]: (prev[sample.id] || 0) + 1,
+      }));
     },
     [samples]
   );
@@ -173,6 +181,7 @@ export function useInstrumentEngine(
     fftData,
     globalPitch,
     activeNodeId,
+    triggerCounts,
     initAudio,
     triggerSample,
     loadSample,

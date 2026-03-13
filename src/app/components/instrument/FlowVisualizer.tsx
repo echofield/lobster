@@ -1,5 +1,6 @@
 // FlowVisualizer - Reactive visual layer inside the circle
 // Creates ripple/particle effects responding to sound
+// Now with Memory Sediment and Constellation Lines
 
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -12,6 +13,24 @@ interface Ripple {
   startTime: number;
 }
 
+// Memory Sediment - ghost traces of past plays
+interface SedimentTrace {
+  id: number;
+  nodeIndex: number;
+  x: number;
+  y: number;
+  age: number; // 0 = fresh, increases over time
+  timestamp: number;
+}
+
+// Constellation - lines connecting recent triggers
+interface ConstellationLine {
+  id: number;
+  from: { x: number; y: number };
+  to: { x: number; y: number };
+  timestamp: number;
+}
+
 interface FlowVisualizerProps {
   centerX: number;
   centerY: number;
@@ -20,11 +39,23 @@ interface FlowVisualizerProps {
   meterLevel: number;
   activeNodeId: string | null;
   nodePositions: { x: number; y: number }[];
-  // New props for Meridian and Aura
-  globalPitch?: number; // -12 to +12 semitones
-  reverbMix?: number; // 0 to 1
-  masterVolume?: number; // 0 to 100
-  bpm?: number; // BPM for aura breathing sync
+  globalPitch?: number;
+  reverbMix?: number;
+  masterVolume?: number;
+  bpm?: number;
+}
+
+// Time-based ambience - subtle color temperature shifts
+function getTimeAmbience(): { warmth: number; depth: number } {
+  const hour = new Date().getHours();
+  // Dawn (5-8): warm, shallow
+  // Day (9-16): neutral
+  // Golden hour (17-19): warm, medium
+  // Night (20-4): cool, deep
+  if (hour >= 5 && hour < 8) return { warmth: 0.3, depth: 0.2 };
+  if (hour >= 9 && hour < 17) return { warmth: 0, depth: 0 };
+  if (hour >= 17 && hour < 20) return { warmth: 0.4, depth: 0.3 };
+  return { warmth: -0.2, depth: 0.5 }; // Night
 }
 
 export function FlowVisualizer({
@@ -40,10 +71,27 @@ export function FlowVisualizer({
   masterVolume = 80,
   bpm = 120,
 }: FlowVisualizerProps) {
-  // Calculate breathing duration synced to BPM (one breath per 4 beats)
   const breathDuration = (60 / bpm) * 4;
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const rippleIdRef = useRef(0);
+
+  // Memory Sediment state
+  const [sedimentTraces, setSedimentTraces] = useState<SedimentTrace[]>([]);
+  const sedimentIdRef = useRef(0);
+
+  // Constellation state
+  const [constellationLines, setConstellationLines] = useState<ConstellationLine[]>([]);
+  const lastTriggerRef = useRef<{ x: number; y: number } | null>(null);
+  const constellationIdRef = useRef(0);
+
+  // Time ambience
+  const [ambience, setAmbience] = useState(getTimeAmbience());
+
+  // Update ambience every minute
+  useEffect(() => {
+    const interval = setInterval(() => setAmbience(getTimeAmbience()), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Calculate aura intensity based on activity, reverb, and master volume
   const auraIntensity = Math.min(
@@ -57,29 +105,78 @@ export function FlowVisualizer({
   // Calculate meridian tilt based on pitch (±3 degrees max)
   const meridianTilt = (globalPitch / 12) * 3;
 
-  // Add ripple when node triggers
+  // Add ripple, sediment trace, and constellation line when node triggers
   useEffect(() => {
     if (activeNodeId !== null) {
       const nodeIndex = parseInt(activeNodeId);
       const nodePos = nodePositions[nodeIndex];
 
       if (nodePos) {
+        // Original ripple
         const newRipple: Ripple = {
           id: rippleIdRef.current++,
           x: nodePos.x,
           y: nodePos.y,
           startTime: Date.now(),
         };
-
         setRipples((prev) => [...prev, newRipple]);
-
-        // Remove ripple after animation
         setTimeout(() => {
           setRipples((prev) => prev.filter((r) => r.id !== newRipple.id));
         }, TIMING.rippleDuration);
+
+        // Memory Sediment - add ghost trace
+        const newTrace: SedimentTrace = {
+          id: sedimentIdRef.current++,
+          nodeIndex,
+          x: nodePos.x,
+          y: nodePos.y,
+          age: 0,
+          timestamp: Date.now(),
+        };
+        setSedimentTraces((prev) => {
+          // Keep max 24 traces (3 full sequences worth)
+          const updated = [...prev, newTrace].slice(-24);
+          return updated;
+        });
+
+        // Constellation - draw line from last trigger
+        if (lastTriggerRef.current) {
+          const newLine: ConstellationLine = {
+            id: constellationIdRef.current++,
+            from: lastTriggerRef.current,
+            to: { x: nodePos.x, y: nodePos.y },
+            timestamp: Date.now(),
+          };
+          setConstellationLines((prev) => [...prev, newLine]);
+
+          // Fade out constellation line after 3 seconds
+          setTimeout(() => {
+            setConstellationLines((prev) => prev.filter((l) => l.id !== newLine.id));
+          }, 3000);
+        }
+        lastTriggerRef.current = { x: nodePos.x, y: nodePos.y };
+
+        // Clear last trigger after 2 seconds of inactivity (break constellation)
+        const clearId = setTimeout(() => {
+          lastTriggerRef.current = null;
+        }, 2000);
+
+        return () => clearTimeout(clearId);
       }
     }
   }, [activeNodeId, nodePositions]);
+
+  // Age sediment traces over time
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSedimentTraces((prev) =>
+        prev
+          .map((trace) => ({ ...trace, age: trace.age + 1 }))
+          .filter((trace) => trace.age < 30) // Remove after ~30 seconds
+      );
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Calculate activity level
   const activityLevel = Math.max(0, Math.min(1, (meterLevel + 60) / 60));
@@ -102,8 +199,20 @@ export function FlowVisualizer({
         </clipPath>
       </defs>
 
+      {/* Time Ambience overlay - subtle warmth/depth shift */}
+      {ambience.depth > 0 && (
+        <circle
+          cx={centerX}
+          cy={centerY}
+          r={radius}
+          fill={COLORS.violet}
+          fillOpacity={ambience.depth * 0.015}
+          style={{ filter: 'blur(40px)' }}
+        />
+      )}
+
       {/* Background concentric circles - ghost grid style */}
-      <g opacity={0.05 + activityLevel * 0.1}>
+      <g opacity={0.05 + activityLevel * 0.1 + ambience.depth * 0.03}>
         {[0.3, 0.5, 0.7, 0.9].map((ratio, i) => (
           <circle
             key={i}
@@ -152,6 +261,46 @@ export function FlowVisualizer({
           transition={{ duration: 2, repeat: Infinity }}
         />
       </g>
+
+      {/* Memory Sediment - ghost rings from past plays */}
+      <g className="sediment-layer">
+        {sedimentTraces.map((trace) => {
+          const opacity = Math.max(0.02, 0.12 - trace.age * 0.004);
+          const scale = 1 + trace.age * 0.02;
+          return (
+            <circle
+              key={trace.id}
+              cx={trace.x}
+              cy={trace.y}
+              r={8 * scale}
+              fill="none"
+              stroke={COLORS.violet}
+              strokeWidth={0.5}
+              opacity={opacity}
+            />
+          );
+        })}
+      </g>
+
+      {/* Constellation Lines - connecting triggered nodes */}
+      <AnimatePresence>
+        {constellationLines.map((line) => (
+          <motion.line
+            key={line.id}
+            x1={line.from.x}
+            y1={line.from.y}
+            x2={line.to.x}
+            y2={line.to.y}
+            stroke={COLORS.violet}
+            strokeWidth={0.5}
+            strokeLinecap="round"
+            initial={{ opacity: 0.4, pathLength: 0 }}
+            animate={{ opacity: 0.15, pathLength: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+          />
+        ))}
+      </AnimatePresence>
 
       {/* Ripples */}
       <AnimatePresence>
