@@ -136,10 +136,13 @@ export function CircularInstrument({ pack, showFieldMonitor = true }: CircularIn
   const getScale = () => {
     if (typeof window === 'undefined') return 1;
     const vw = window.innerWidth;
-    if (vw < 400) return 0.48;
+    // More aggressive scaling for small screens to prevent cut-off
+    if (vw < 360) return 0.42;
+    if (vw < 400) return 0.46;
+    if (vw < 450) return 0.52;
     if (vw < 500) return 0.55;
-    if (vw < 640) return 0.65;
-    if (vw < 768) return 0.8;
+    if (vw < 640) return 0.62;
+    if (vw < 768) return 0.75;
     return 1;
   };
 
@@ -156,13 +159,14 @@ export function CircularInstrument({ pack, showFieldMonitor = true }: CircularIn
   const scaledSize = containerSize * scale;
 
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10 w-full">
+    <div className="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10 w-full max-w-full">
       {/* Scaling wrapper - uses actual scaled dimensions */}
       <div
-        className="flex items-center justify-center overflow-visible"
+        className="flex items-center justify-center flex-shrink-0"
         style={{
           width: scaledSize,
           height: scaledSize,
+          maxWidth: '100vw',
         }}
       >
         {/* Main Instrument - fixed internal coordinates, scaled via transform */}

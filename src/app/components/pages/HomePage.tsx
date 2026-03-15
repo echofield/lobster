@@ -257,7 +257,7 @@ export function HomePage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.2 }}
-                className="space-y-0.5 sm:space-y-1"
+                className="space-y-0.5 sm:space-y-1 relative z-10 bg-transparent"
               >
                 <p className="text-xs sm:text-sm font-medium tracking-wide">{previewTracks[currentTrack].name}</p>
                 <p className="text-[10px] sm:text-xs opacity-40">{previewTracks[currentTrack].drop}</p>
@@ -349,17 +349,19 @@ export function HomePage() {
               )}
             </div>
 
-            {/* Poetic Text - Bottom of circle (hidden on mobile to prevent overlap) */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, duration: 1 }}
-              className="hidden sm:block absolute bottom-[15%] left-1/2 -translate-x-1/2 text-center"
-            >
-              <p className="font-serif italic text-lg opacity-30 tracking-wide">
-                Sound is access
-              </p>
-            </motion.div>
+            {/* Poetic Text - Bottom of circle (completely hidden on mobile) */}
+            <div className="hidden sm:block">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1, duration: 1 }}
+                className="absolute bottom-[15%] left-1/2 -translate-x-1/2 text-center"
+              >
+                <p className="font-serif italic text-lg opacity-30 tracking-wide">
+                  Sound is access
+                </p>
+              </motion.div>
+            </div>
           </motion.div>
 
           {/* Floating Cube - Right side (hidden on mobile) */}

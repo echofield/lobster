@@ -9,7 +9,7 @@ import { sedimentFlowPack } from '@/app/data/instrument/sediment-flow';
 
 export function InstrumentPage() {
   return (
-    <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] relative overflow-hidden">
+    <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] relative overflow-x-hidden">
       {/* Ambient background - very subtle */}
       <div className="fixed inset-0 pointer-events-none">
         <div
@@ -57,7 +57,7 @@ export function InstrumentPage() {
       </motion.nav>
 
       {/* Main Content */}
-      <div className="min-h-screen flex items-center justify-center px-4 py-20 md:py-24 overflow-hidden">
+      <div className="min-h-screen flex items-center justify-center px-2 sm:px-4 py-20 md:py-24">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}

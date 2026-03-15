@@ -381,12 +381,13 @@ export function MemberAccessPage() {
       {/* Main Layout - Sidebar hidden on mobile */}
       <div className="flex flex-col md:flex-row min-h-screen">
         {/* Left Sidebar - hidden on mobile */}
-        <motion.aside
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: isReady ? 1 : 0, x: isReady ? 0 : -20 }}
-          transition={{ duration: 0.6 }}
-          className="hidden md:flex w-64 border-r border-[#1A1A1A]/5 p-6 flex-col"
-        >
+        <aside className="hidden md:block">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: isReady ? 1 : 0, x: isReady ? 0 : -20 }}
+            transition={{ duration: 0.6 }}
+            className="flex w-64 border-r border-[#1A1A1A]/5 p-6 flex-col h-full"
+          >
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 mb-10">
             <div className="w-5 h-5 border border-[#1A1A1A]/30 rotate-45" />
@@ -460,7 +461,8 @@ export function MemberAccessPage() {
               Card #{String(41).padStart(3, '0')} · {card.edition}
             </p>
           </div>
-        </motion.aside>
+        </motion.div>
+        </aside>
 
         {/* Main Content */}
         <main className="flex-1 w-full overflow-auto">
@@ -539,7 +541,7 @@ export function MemberAccessPage() {
           </motion.header>
 
           {/* Content Area */}
-          <div className="p-4 md:p-8">
+          <div className="p-4 md:p-8 w-full">
             {/* Section Header */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -559,7 +561,7 @@ export function MemberAccessPage() {
 
             {/* Drops Grid/List */}
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 w-full">
                 {filteredDrops.map((drop, i) => (
                   <DropCard
                     key={drop.id}
