@@ -139,6 +139,15 @@ export function MemberAccessPage() {
   const [playingDrop, setPlayingDrop] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  // Detect desktop for sidebar rendering
+  useEffect(() => {
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 768);
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
 
   // Get filter from URL params
   const filterParam = searchParams.get('filter') as FilterType | null;
@@ -378,11 +387,11 @@ export function MemberAccessPage() {
         )}
       </AnimatePresence>
 
-      {/* Main Layout - Sidebar hidden on mobile */}
-      <div className="flex flex-col md:flex-row min-h-screen">
-        {/* Left Sidebar - hidden on mobile */}
-        <aside className="hidden md:block">
-          <motion.div
+      {/* Main Layout - Sidebar only on desktop */}
+      <div className="flex min-h-screen">
+        {/* Left Sidebar - only rendered on desktop */}
+        {isDesktop && (
+          <motion.aside
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: isReady ? 1 : 0, x: isReady ? 0 : -20 }}
             transition={{ duration: 0.6 }}
@@ -461,8 +470,8 @@ export function MemberAccessPage() {
               Card #{String(41).padStart(3, '0')} · {card.edition}
             </p>
           </div>
-        </motion.div>
-        </aside>
+        </motion.aside>
+        )}
 
         {/* Main Content */}
         <main className="flex-1 w-full overflow-auto">

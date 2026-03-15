@@ -159,23 +159,23 @@ export function CircularInstrument({ pack, showFieldMonitor = true }: CircularIn
   const scaledSize = containerSize * scale;
 
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10 w-full max-w-full">
-      {/* Scaling wrapper - uses actual scaled dimensions */}
+    <div className="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10 w-full">
+      {/* Scaling wrapper - centers the instrument */}
       <div
-        className="flex items-center justify-center flex-shrink-0"
+        className="relative flex items-center justify-center"
         style={{
-          width: scaledSize,
+          width: '100%',
+          maxWidth: scaledSize,
           height: scaledSize,
-          maxWidth: '100vw',
         }}
       >
         {/* Main Instrument - fixed internal coordinates, scaled via transform */}
         <div
-          className="relative flex-shrink-0"
+          className="absolute left-1/2 top-1/2 flex-shrink-0"
           style={{
             width: containerSize,
             height: containerSize,
-            transform: `scale(${scale})`,
+            transform: `translate(-50%, -50%) scale(${scale})`,
             transformOrigin: 'center center',
           }}
         >

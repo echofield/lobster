@@ -349,19 +349,7 @@ export function HomePage() {
               )}
             </div>
 
-            {/* Poetic Text - Bottom of circle (completely hidden on mobile) */}
-            <div className="hidden sm:block">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1, duration: 1 }}
-                className="absolute bottom-[15%] left-1/2 -translate-x-1/2 text-center"
-              >
-                <p className="font-serif italic text-lg opacity-30 tracking-wide">
-                  Sound is access
-                </p>
-              </motion.div>
-            </div>
+{/* Poetic Text - only rendered on desktop */}
           </motion.div>
 
           {/* Floating Cube - Right side (hidden on mobile) */}
