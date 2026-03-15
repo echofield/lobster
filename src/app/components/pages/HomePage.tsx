@@ -38,8 +38,8 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] relative overflow-hidden flex flex-col">
-      {/* Soft ambient glow backgrounds - more violet/lavender */}
-      <div className="fixed inset-0 pointer-events-none">
+      {/* Soft ambient glow backgrounds - hidden on mobile to prevent rendering artifacts */}
+      <div className="hidden sm:block fixed inset-0 pointer-events-none">
         <div
           className="absolute top-1/4 left-1/4 w-[60vw] h-[60vw] rounded-full opacity-25 blur-[120px]"
           style={{
@@ -473,7 +473,7 @@ export function HomePage() {
       </div>
 
       {/* Debug version indicator - REMOVE AFTER TESTING */}
-      <div className="fixed bottom-2 left-2 text-[8px] text-red-500 z-50 bg-white px-1">BUILD-0315-A</div>
+      <div className="fixed bottom-2 left-2 text-[8px] text-red-500 z-50 bg-white px-1">BUILD-0315-B</div>
 
       {/* Bottom Navigation Tabs */}
       <motion.div

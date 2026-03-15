@@ -388,7 +388,7 @@ export function MemberAccessPage() {
       </AnimatePresence>
 
       {/* Main Layout - Sidebar only on desktop */}
-      <div className="flex min-h-screen">
+      <div className="flex flex-col md:flex-row min-h-screen">
         {/* Left Sidebar - only rendered on desktop */}
         {isDesktop && (
           <motion.aside

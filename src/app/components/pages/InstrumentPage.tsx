@@ -9,7 +9,7 @@ import { sedimentFlowPack } from '@/app/data/instrument/sediment-flow';
 
 export function InstrumentPage() {
   return (
-    <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#FAF8F2] text-[#1A1A1A] relative">
       {/* Ambient background - very subtle */}
       <div className="fixed inset-0 pointer-events-none">
         <div
