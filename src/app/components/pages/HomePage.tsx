@@ -472,6 +472,9 @@ export function HomePage() {
         </motion.div>
       </div>
 
+      {/* Debug version indicator - REMOVE AFTER TESTING */}
+      <div className="fixed bottom-2 left-2 text-[8px] text-red-500 z-50 bg-white px-1">BUILD-0315-A</div>
+
       {/* Bottom Navigation Tabs */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
